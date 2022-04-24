@@ -1,8 +1,8 @@
-using Microsoft.AspNetCore.ResponseCompression;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(builder.Configuration));
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
@@ -27,7 +27,6 @@ app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
 app.UseRouting();
-
 
 app.MapRazorPages();
 app.MapControllers();
