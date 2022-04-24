@@ -1,0 +1,21 @@
+﻿// source: https://github.com/rnwood/smtp4dev/tree/master/Rnwood.Smtp4dev/ApiModel
+
+namespace LocalSmtp.Shared.ApiModels
+{
+    public class MessageEntitySummary
+    {
+        public string Id { get; set; }
+        public List<Header> Headers { get; set; }
+        public List<MessageEntitySummary> ChildParts { get; set; }
+        public string Name { get; set; }
+        public Guid MessageId { get; set; }
+        public string ContentId { get; set; }
+        public List<AttachmentSummary> Attachments { get; set; }
+        public List<MessageWarning> Warnings { get; set; }
+        public int Size { get; set; }
+        public bool IsAttachment { get; set; }
+
+        //[JsonIgnore]
+        //internal MimeEntity MimeEntity { get; set; }
+    }
+}
