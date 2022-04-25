@@ -7,27 +7,12 @@ Redistribution and use in source and binary forms, with or without modification,
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
 LOSS OF USE, DATA, OR PROFITS;
 OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-source: https://github.com/rnwood/smtp4dev/tree/master/Rnwood.Smtp4dev/Controllers
+source: https://github.com/rnwood/smtp4dev/tree/master/Rnwood.Smtp4dev/Services
 */
 
-using LocalSmtp.Server.Controllers.Attributes;
-using LocalSmtp.Shared.ApiModels;
-using Microsoft.AspNetCore.Mvc;
-using System.Reflection;
+namespace LocalSmtp.Server.Application.Services.Abstractions;
 
-namespace LocalSmtp.Server.Controllers
+public interface IHostingEnvironmentHelper
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    [UseEtagFilter]
-    public class InfoController : Controller
-    {
-        [HttpGet]
-        public ActionResult<Info> Get()
-        {
-            var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString();
-            var infoVersion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
-            return new Info { Version = version, InfoVersion = infoVersion };
-        }
-    }
+    string GetSettingsFilePath();
 }

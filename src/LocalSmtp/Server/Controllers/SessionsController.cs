@@ -10,24 +10,61 @@ OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
 source: https://github.com/rnwood/smtp4dev/tree/master/Rnwood.Smtp4dev/Controllers
 */
 
+using LocalSmtp.Server.Application.Extensions;
+using LocalSmtp.Server.Application.Services.Abstractions;
 using LocalSmtp.Server.Controllers.Attributes;
+using LocalSmtp.Server.Infrastructure.Data;
 using LocalSmtp.Shared.ApiModels;
 using Microsoft.AspNetCore.Mvc;
-using System.Reflection;
 
 namespace LocalSmtp.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     [UseEtagFilter]
-    public class InfoController : Controller
+    public class SessionsController : Controller
     {
-        [HttpGet]
-        public ActionResult<Info> Get()
+        public SessionsController(AppDbContext dbContext, ILocalSmtpServer server)
         {
-            var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString();
-            var infoVersion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
-            return new Info { Version = version, InfoVersion = infoVersion };
+            this.dbContext = dbContext;
+            this.server = server;
+        }
+
+        private readonly AppDbContext dbContext;
+        private readonly ILocalSmtpServer server;
+
+        [HttpGet]
+        public IEnumerable<SessionSummary> GetSummaries()
+        {
+            return dbContext.Sessions.Where(s => s.EndDate.HasValue)
+                .Select(m => m.ToSummaryApiModel());
+        }
+
+        [HttpGet("{id}")]
+        public Session GetSession(Guid id)
+        {
+            var result = dbContext.Sessions.SingleOrDefault(m => m.Id == id);
+            return result.ToApiModel();
+        }
+
+        [HttpGet("{id}/log")]
+        public string GetSessionLog(Guid id)
+        {
+            var result = dbContext.Sessions.SingleOrDefault(m => m.Id == id);
+            return result.Log;
+        }
+
+
+        [HttpDelete("{id}")]
+        public async Task Delete(Guid id)
+        {
+            await server.DeleteSession(id);
+        }
+
+        [HttpDelete("*")]
+        public async Task DeleteAll()
+        {
+            await server.DeleteAllSessions();
         }
     }
 }

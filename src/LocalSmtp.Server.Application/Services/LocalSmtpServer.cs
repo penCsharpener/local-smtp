@@ -1,4 +1,16 @@
-// source: https://github.com/rnwood/smtp4dev/tree/master/Rnwood.Smtp4dev/Server
+/*
+Copyright(c) 2009 - 2018, smtp4dev project contributors All rights reserved.
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+    * Neither the name of smtp4dev nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS;
+OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+source: https://github.com/rnwood/smtp4dev/tree/master/Rnwood.Smtp4dev/Server
+*/
+
+using LocalSmtp.Server.Application.Extensions;
 using LocalSmtp.Server.Application.Hubs;
 using LocalSmtp.Server.Application.Services.Abstractions;
 using LocalSmtp.Server.Infrastructure.Data;
@@ -55,9 +67,9 @@ public class LocalSmtpServer : ILocalSmtpServer
 
     private void CreateSmtpServer()
     {
-        X509Certificate2 cert = GetTlsCertificate();
+        var cert = GetTlsCertificate();
 
-        ServerOptions serverOptionsValue = serverOptions.CurrentValue;
+        var serverOptionsValue = serverOptions.CurrentValue;
         smtpServer = new DefaultServer(serverOptionsValue.AllowRemoteConnections, serverOptionsValue.HostName, serverOptionsValue.Port,
             serverOptionsValue.TlsMode == TlsMode.ImplicitTls ? cert : null,
             serverOptionsValue.TlsMode == TlsMode.StartTls ? cert : null
@@ -106,8 +118,8 @@ public class LocalSmtpServer : ILocalSmtpServer
             }
             else
             {
-                string pfxPath = Path.GetFullPath("selfsigned-certificate.pfx");
-                string cerPath = Path.GetFullPath("selfsigned-certificate.cer");
+                var pfxPath = Path.GetFullPath("selfsigned-certificate.pfx");
+                var cerPath = Path.GetFullPath("selfsigned-certificate.cer");
 
                 if (File.Exists(pfxPath))
                 {
@@ -151,9 +163,9 @@ public class LocalSmtpServer : ILocalSmtpServer
     private void DoCleanup()
     {
         using var scope = serviceScopeFactory.CreateScope();
-        AppDbContext dbContext = scope.ServiceProvider.GetService<AppDbContext>();
+        var dbContext = scope.ServiceProvider.GetService<AppDbContext>();
 
-        foreach (Session unfinishedSession in dbContext.Sessions.Where(s => !s.EndDate.HasValue).ToArray())
+        foreach (var unfinishedSession in dbContext.Sessions.Where(s => !s.EndDate.HasValue).ToArray())
         {
             unfinishedSession.EndDate = DateTime.Now;
         }
@@ -199,9 +211,9 @@ public class LocalSmtpServer : ILocalSmtpServer
         await taskQueue.QueueTask(() =>
         {
             using var scope = serviceScopeFactory.CreateScope();
-            AppDbContext dbContext = scope.ServiceProvider.GetService<AppDbContext>();
+            var dbContext = scope.ServiceProvider.GetService<AppDbContext>();
 
-            Session dbSession = new Session();
+            var dbSession = new Session();
             UpdateDbSession(e.Session, dbSession).Wait();
             dbContext.Sessions.Add(dbSession);
             dbContext.SaveChanges();
@@ -212,7 +224,7 @@ public class LocalSmtpServer : ILocalSmtpServer
 
     private async Task OnSessionCompleted(object sender, SessionEventArgs e)
     {
-        int messageCount = (await e.Session.GetMessages()).Count;
+        var messageCount = (await e.Session.GetMessages()).Count;
         _logger.LogInformation("Session completed. Client address {clientAddress}. Number of messages {messageCount}.", e.Session.ClientAddress,
             messageCount);
 
@@ -220,9 +232,9 @@ public class LocalSmtpServer : ILocalSmtpServer
         await taskQueue.QueueTask(() =>
         {
             using var scope = serviceScopeFactory.CreateScope();
-            AppDbContext dbContext = scope.ServiceProvider.GetService<AppDbContext>();
+            var dbContext = scope.ServiceProvider.GetService<AppDbContext>();
 
-            Session dbSession = dbContext.Sessions.Find(activeSessionsToDbId[e.Session]);
+            var dbSession = dbContext.Sessions.Find(activeSessionsToDbId[e.Session]);
             UpdateDbSession(e.Session, dbSession).Wait();
             dbContext.SaveChanges();
 
@@ -241,8 +253,8 @@ public class LocalSmtpServer : ILocalSmtpServer
         return taskQueue.QueueTask(() =>
         {
             using var scope = serviceScopeFactory.CreateScope();
-            AppDbContext dbContext = scope.ServiceProvider.GetService<AppDbContext>();
-            Session session = dbContext.Sessions.SingleOrDefault(s => s.Id == id);
+            var dbContext = scope.ServiceProvider.GetService<AppDbContext>();
+            var session = dbContext.Sessions.SingleOrDefault(s => s.Id == id);
             if (session != null)
             {
                 dbContext.Sessions.Remove(session);
@@ -257,7 +269,7 @@ public class LocalSmtpServer : ILocalSmtpServer
         return taskQueue.QueueTask(() =>
         {
             using var scope = serviceScopeFactory.CreateScope();
-            AppDbContext dbContext = scope.ServiceProvider.GetService<AppDbContext>();
+            var dbContext = scope.ServiceProvider.GetService<AppDbContext>();
             dbContext.Sessions.RemoveRange(dbContext.Sessions.Where(s => s.EndDate.HasValue));
             dbContext.SaveChanges();
             notificationsHub.OnSessionsChanged().Wait();
@@ -266,7 +278,7 @@ public class LocalSmtpServer : ILocalSmtpServer
 
     private async Task OnMessageReceived(object sender, MessageEventArgs e)
     {
-        Message message = new MessageConverter().ConvertAsync(e.Message).Result;
+        var message = new MessageConverter().ConvertAsync(e.Message).Result;
         _logger.LogInformation("Message received. Client address {clientAddress}, From {messageFrom}, To {messageTo}, SecureConnection: {secure}.",
             e.Message.Session.ClientAddress, e.Message.From, message.To, e.Message.SecureConnection);
         message.IsUnread = true;
@@ -280,7 +292,7 @@ public class LocalSmtpServer : ILocalSmtpServer
             var relayResult = TryRelayMessage(message, null);
             message.RelayError = string.Join("\n", relayResult.Exceptions.Select(e => e.Key + ": " + e.Value.Message));
 
-            ImapState imapState = dbContext.ImapState.Single();
+            var imapState = dbContext.ImapState.Single();
             imapState.LastUid = Math.Max(0, imapState.LastUid + 1);
             message.ImapUid = imapState.LastUid;
             message.Session = dbContext.Sessions.Find(activeSessionsToDbId[e.Message.Session]);
@@ -327,20 +339,16 @@ public class LocalSmtpServer : ILocalSmtpServer
             recipients = overrideRecipients;
         }
 
-        foreach (MailboxAddress recipient in recipients)
+        foreach (var recipient in recipients)
         {
             try
             {
                 _logger.LogInformation("Relaying message to {recipient}", recipient);
 
-                using SmtpClient relaySmtpClient = relaySmtpClientFactory(relayOptions.CurrentValue);
-                var apiMsg = new Shared.ApiModels.Message()
-                {
-                    // TODO map object
-                    --
-                };
-                MimeMessage newEmail = apiMsg.MimeMessage;
-                MailboxAddress sender = MailboxAddress.Parse(
+                using var relaySmtpClient = relaySmtpClientFactory(relayOptions.CurrentValue);
+                var apiMsg = message.ToApiModel();
+                var newEmail = apiMsg.MimeMessage;
+                var sender = MailboxAddress.Parse(
                     !string.IsNullOrEmpty(relayOptions.CurrentValue.SenderAddress)
                         ? relayOptions.CurrentValue.SenderAddress
                         : apiMsg.From);
@@ -372,8 +380,8 @@ public class LocalSmtpServer : ILocalSmtpServer
 
     private readonly ITaskQueue taskQueue;
     private DefaultServer smtpServer;
-    private Func<RelayOptions, SmtpClient> relaySmtpClientFactory;
-    private NotificationsHub notificationsHub;
+    private readonly Func<RelayOptions, SmtpClient> relaySmtpClientFactory;
+    private readonly NotificationsHub notificationsHub;
     private readonly IServiceScopeFactory serviceScopeFactory;
 
     public Exception Exception { get; private set; }
@@ -404,7 +412,7 @@ public class LocalSmtpServer : ILocalSmtpServer
         }
         catch (Exception e)
         {
-            _logger.Fatal(e, "The SMTP server failed to start: {failureReason}", e.ToString());
+            _logger.LogCritical(e, "The SMTP server failed to start: {failureReason}", e.ToString());
             Exception = e;
         }
         finally
