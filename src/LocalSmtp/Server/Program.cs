@@ -74,8 +74,6 @@ public static class Program
 
     private static void ConfigureWebApplication(WebApplication? app)
     {
-        var serverOptions = app.Configuration.GetSection("ServerOptions").Get<ServerOptions>();
-
         if (app.Environment.IsDevelopment())
         {
             app.UseWebAssemblyDebugging();

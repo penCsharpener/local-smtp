@@ -228,7 +228,6 @@ public class LocalSmtpServer : ILocalSmtpServer
         _logger.LogInformation("Session completed. Client address {clientAddress}. Number of messages {messageCount}.", e.Session.ClientAddress,
             messageCount);
 
-
         await taskQueue.QueueTask(() =>
         {
             using var scope = serviceScopeFactory.CreateScope();

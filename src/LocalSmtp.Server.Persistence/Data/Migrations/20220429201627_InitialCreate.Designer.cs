@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LocalSmtp.Server.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20220425210827_InitialCreate")]
+    [Migration("20220429201627_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -43,11 +43,9 @@ namespace LocalSmtp.Server.Infrastructure.Data.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<byte[]>("Data")
-                        .IsRequired()
                         .HasColumnType("BLOB");
 
                     b.Property<string>("From")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<long>("ImapUid")
@@ -57,28 +55,24 @@ namespace LocalSmtp.Server.Infrastructure.Data.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("MimeParseError")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("ReceivedDate")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("RelayError")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("SecureConnection")
                         .HasColumnType("INTEGER");
 
-                    b.Property<Guid>("SessionId")
+                    b.Property<Guid?>("SessionId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Subject")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("To")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -101,7 +95,6 @@ namespace LocalSmtp.Server.Infrastructure.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("To")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -118,25 +111,21 @@ namespace LocalSmtp.Server.Infrastructure.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ClientAddress")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ClientName")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Log")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int>("NumberOfMessages")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("SessionError")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int?>("SessionErrorType")
@@ -154,9 +143,7 @@ namespace LocalSmtp.Server.Infrastructure.Data.Migrations
                 {
                     b.HasOne("LocalSmtp.Server.Infrastructure.Models.Session", "Session")
                         .WithMany()
-                        .HasForeignKey("SessionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SessionId");
 
                     b.Navigation("Session");
                 });
