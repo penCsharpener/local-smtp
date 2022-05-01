@@ -45,6 +45,13 @@ public static class Program
         services.AddScoped<IMessagesRepository, MessagesRepository>();
         services.AddScoped<IHostingEnvironmentHelper, HostingEnvironmentHelper>();
         services.AddSingleton<ITaskQueue, TaskQueue>();
+        services.AddCors(opts =>
+        {
+            opts.AddPolicy("CorsPolicy", policy =>
+            {
+                policy.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod();
+            });
+        });
 
         services.AddSingleton<Func<RelayOptions, SmtpClient>>(relayOptions =>
         {
@@ -93,6 +100,7 @@ public static class Program
         app.UseWebSockets();
 
         app.UseRouting();
+        app.UseCors("CorsPolicy");
         app.MapHub<NotificationsHub>("/hubs/notifications");
 
         using (var scope = app.Services.CreateScope())

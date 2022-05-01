@@ -16,27 +16,34 @@ namespace LocalSmtp.Server.Application.Hubs;
 
 public class NotificationsHub : Hub
 {
+    private readonly IHubContext<NotificationsHub> _context;
+
+    public NotificationsHub(IHubContext<NotificationsHub> context)
+    {
+        _context = context;
+    }
+
     public async Task OnMessagesChanged()
     {
-        if (Clients != null)
+        if (_context.Clients != null)
         {
-            await Clients.All.SendAsync("messageschanged");
+            await _context.Clients.All.SendAsync("messageschanged", "msg");
         }
     }
 
     public async Task OnServerChanged()
     {
-        if (Clients != null)
+        if (_context.Clients != null)
         {
-            await Clients.All.SendAsync("serverchanged");
+            await _context.Clients.All.SendAsync("serverchanged", "msg");
         }
     }
 
     public async Task OnSessionsChanged()
     {
-        if (Clients != null)
+        if (_context.Clients != null)
         {
-            await Clients.All.SendAsync("sessionschanged");
+            await _context.Clients.All.SendAsync("sessionschanged", "msg");
         }
     }
 }
