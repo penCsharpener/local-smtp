@@ -1,0 +1,26 @@
+﻿<MudGrid Spacing="0">
+  <MudItem xs="6">
+    <MudGrid Spacing="0">
+      <MudItem xs="6">
+        <MudButtonGroup Color="Color.Primary" Variant="Variant.Filled" Style="margin-top: 18px;">
+          <MudButton StartIcon="@Icons.Material.Filled.Close"></MudButton>
+          <MudButton StartIcon="@Icons.Material.Filled.Delete"></MudButton>
+          <MudButton StartIcon="@Icons.Material.Filled.Refresh"></MudButton>
+          <MudButton StartIcon="@Icons.Material.Filled.FastForward"></MudButton>
+        </MudButtonGroup>
+      </MudItem>
+      <MudItem xs="6">
+        <MudForm>
+          <MudTextField @bind-Value="@_normalText" Label="Search" Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentIcon="@Icons.Filled.Search" />
+        </MudForm>
+      </MudItem>
+    </MudGrid>
+
+  </MudItem>
+  <MudItem xs="6">
+
+  </MudItem>
+</MudGrid>
+@code {
+  string _normalText = "";
+}

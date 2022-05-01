@@ -1,32 +1,20 @@
 ﻿@inherits LayoutComponentBase
 
-<MudThemeProvider/>
-<MudDialogProvider/>
-<MudSnackbarProvider/>
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
 
 <MudLayout>
-    <MudAppBar Elevation="0">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-        <MudSpacer />
-    </MudAppBar>
-    <MudDrawer @bind-Open="_drawerOpen" Elevation="1">
-        <MudDrawerHeader>
-            <MudText Typo="Typo.h6">Local Smtp</MudText>
-        </MudDrawerHeader>
-        <NavMenu />
-    </MudDrawer>
-    <MudMainContent>
-        <MudContainer MaxWidth="MaxWidth.Large" Class="my-16 pt-16">
-            @Body
-        </MudContainer>
-    </MudMainContent>
+  <MudAppBar>
+    <MudText>Local Smtp</MudText>
+    <MudSpacer />
+    <MudText>SMTP server listening on port 25</MudText>
+    <MudButton>
+      <MudIcon Icon="@Icons.Material.Filled.Settings" Style="color: white;"></MudIcon>
+    </MudButton>
+  </MudAppBar>
+  <MudMainContent>
+    @Body
+  </MudMainContent>
 </MudLayout>
 
-@code {
-    bool _drawerOpen = true;
-
-    void DrawerToggle()
-    {
-        _drawerOpen = !_drawerOpen;
-    }
-}
