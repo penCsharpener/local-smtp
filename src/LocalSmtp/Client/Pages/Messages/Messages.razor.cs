@@ -29,15 +29,20 @@ namespace LocalSmtp.Client.Pages.Messages
         protected override async Task OnInitializedAsync()
         {
             await LoadDataAsync();
-            _hubConnection = new HubConnectionBuilder().WithUrl(Nav.ToAbsoluteUri("/hubs/notifications")).WithAutomaticReconnect().Build();
-            await _hubConnection.StartAsync();
+            _hubConnection = new HubConnectionBuilder()
+                .WithUrl(Nav.ToAbsoluteUri("/hubs/notifications"))
+                .WithAutomaticReconnect()
+                .Build();
+
             _hubConnection.On<string>("messageschanged", UpdateMessagesAsync);
+
+            await _hubConnection.StartAsync();
         }
 
         private async Task UpdateMessagesAsync(string msg)
         {
             await LoadDataAsync();
-            StateHasChanged();
+            await InvokeAsync(StateHasChanged);
         }
 
         private async void OnSelectedMessageChangedAsync(MessageSummary messageSummary)
@@ -45,7 +50,7 @@ namespace LocalSmtp.Client.Pages.Messages
             _messageRaw = await httpClient.GetStringAsync($"/api/Messages/{messageSummary.Id}/raw");
             _messageHtml = await httpClient.GetStringAsync($"/api/Messages/{messageSummary.Id}/html");
             _messageContent = await httpClient.GetFromJsonAsync<Message>($"/api/Messages/{messageSummary.Id}");
-            StateHasChanged();
+            await InvokeAsync(StateHasChanged);
         }
 
         private async Task LoadDataAsync()
@@ -93,6 +98,14 @@ namespace LocalSmtp.Client.Pages.Messages
             }
 
             return string.Empty;
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            if (_hubConnection is not null)
+            {
+                await _hubConnection.DisposeAsync();
+            }
         }
     }
 }
