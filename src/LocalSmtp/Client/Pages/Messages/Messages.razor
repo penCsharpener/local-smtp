@@ -8,10 +8,18 @@
     <MudGrid Spacing="0">
       <MudItem xs="12">
         <MudButtonGroup Color="Color.Primary" Variant="Variant.Filled" Style="margin-top: 18px;">
-          <MudButton StartIcon="@Icons.Material.Filled.Close"></MudButton>
-          <MudButton StartIcon="@Icons.Material.Filled.Delete"></MudButton>
-          <MudButton StartIcon="@Icons.Material.Filled.Refresh"></MudButton>
-          <MudButton StartIcon="@Icons.Material.Filled.FastForward"></MudButton>
+          <MudTooltip Text="Delete selected">
+            <MudButton Disabled="SelectedMessage == null" StartIcon="@Icons.Material.Filled.Close" OnClick="DeleteSelectedAsync"></MudButton>
+          </MudTooltip>
+          <MudTooltip Text="Delete all">
+            <MudButton StartIcon="@Icons.Material.Filled.Delete" OnClick="DeleteDataAsync"></MudButton>
+          </MudTooltip>
+          <MudTooltip Text="Refresh messages">
+            <MudButton StartIcon="@Icons.Material.Filled.Refresh" OnClick="LoadDataAsync"></MudButton>
+          </MudTooltip>
+          <MudTooltip Text="Relay">
+            <MudButton Disabled="true" StartIcon="@Icons.Material.Filled.FastForward"></MudButton>
+          </MudTooltip>
         </MudButtonGroup>
       </MudItem>
 
@@ -21,9 +29,9 @@
       <MudDivider />
     </div>
 
-    <MudTable Items="@Elements" @ref="mudTable" FixedHeader="true" FixedFooter="true" Dense="true" Hover="true" Bordered="false" Striped="true" 
-      Virtualize="true" Height="100%" Filter="new Func<MessageSummary,bool>(FilterFunc1)" RowStyleFunc="@SelectedRowStyleFunc"
-        @bind-SelectedItem="SelectedMessage" RowsPerPage="50">
+    <MudTable Items="@Elements" @ref="mudTable" T="MessageSummary" FixedHeader="true" FixedFooter="true" Dense="true" Hover="true" Bordered="false" Striped="true"
+              Virtualize="true" Height="100%" Filter="new Func<MessageSummary,bool>(FilterFunc1)" RowStyleFunc="@SelectedRowStyleFunc"
+              OnRowClick="@OnSelectedMessageChangedAsync" @bind-SelectedItem="SelectedMessage" RowsPerPage="50">
       <ToolBarContent>
         <MudText Typo="Typo.h6">Messages</MudText>
         <MudSpacer />
@@ -36,13 +44,13 @@
         <MudTh>Subject</MudTh>
       </HeaderContent>
       <RowTemplate>
-        <MudTd DataLabel="Received">@context.ReceivedDate</MudTd>
-        <MudTd DataLabel="From">@context.From</MudTd>
-        <MudTd DataLabel="To">@context.To</MudTd>
-        <MudTd DataLabel="Subject">@context.Subject</MudTd>
+        <MudTd Style="@IsMailRead(context.IsUnread)" DataLabel="Received">@context.ReceivedDate</MudTd>
+        <MudTd Style="@IsMailRead(context.IsUnread)" DataLabel="From">@context.From</MudTd>
+        <MudTd Style="@IsMailRead(context.IsUnread)" DataLabel="To">@context.To</MudTd>
+        <MudTd Style="@IsMailRead(context.IsUnread)" DataLabel="Subject">@context.Subject</MudTd>
       </RowTemplate>
       <PagerContent>
-        <MudTablePager PageSizeOptions="new int[] {50, 100, 200}"/>
+        <MudTablePager PageSizeOptions="new int[] {50, 100, 200}" />
       </PagerContent>
     </MudTable>
   </MudItem>
@@ -52,4 +60,3 @@
     </pre>
   </MudItem>
 </MudGrid>
-

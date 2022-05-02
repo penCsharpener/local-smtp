@@ -46,4 +46,12 @@ public class NotificationsHub : Hub
             await _context.Clients.All.SendAsync("sessionschanged", "msg");
         }
     }
+
+    public async Task OnMessageReadChanged(Guid id)
+    {
+        if (_context.Clients != null)
+        {
+            await _context.Clients.All.SendAsync("messageReadChanged", id);
+        }
+    }
 }

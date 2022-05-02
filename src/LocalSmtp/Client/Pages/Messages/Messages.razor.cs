@@ -7,24 +7,16 @@ namespace LocalSmtp.Client.Pages.Messages
 {
     public partial class Messages
     {
-        IEnumerable<MessageSummary>? Elements = new List<MessageSummary>();
-        private MessageSummary _selectedMessage;
+        List<MessageSummary>? Elements = new();
         private string searchString = "";
         private MudTable<MessageSummary> mudTable;
         HubConnection _hubConnection = null;
         private Message? _messageContent;
         private string? _messageRaw;
         private string? _messageHtml;
+        private int _selectedRowNumber = -1;
 
-        public MessageSummary SelectedMessage
-        {
-            get => _selectedMessage;
-            set
-            {
-                _selectedMessage = value;
-                OnSelectedMessageChangedAsync(value);
-            }
-        }
+        public MessageSummary SelectedMessage { get; set; }
 
         protected override async Task OnInitializedAsync()
         {
@@ -35,6 +27,7 @@ namespace LocalSmtp.Client.Pages.Messages
                 .Build();
 
             _hubConnection.On<string>("messageschanged", UpdateMessagesAsync);
+            _hubConnection.On<Guid>("messageReadChanged", UpdateMessageReadAsync);
 
             await _hubConnection.StartAsync();
         }
@@ -45,8 +38,29 @@ namespace LocalSmtp.Client.Pages.Messages
             await InvokeAsync(StateHasChanged);
         }
 
-        private async void OnSelectedMessageChangedAsync(MessageSummary messageSummary)
+        private async Task UpdateMessageReadAsync(Guid id)
         {
+            var message = Elements.Where(m => m.Id == id).FirstOrDefault();
+
+            if (message is null)
+            {
+                return;
+            }
+
+            message.IsUnread = false;
+
+            await InvokeAsync(StateHasChanged);
+        }
+
+        public async void OnSelectedMessageChangedAsync(TableRowClickEventArgs<MessageSummary> args)
+        {
+            var messageSummary = args.Item;
+
+            if (messageSummary.IsUnread)
+            {
+                await httpClient.PostAsync($"api/Messages/{messageSummary.Id}", null);
+            }
+
             _messageRaw = await httpClient.GetStringAsync($"/api/Messages/{messageSummary.Id}/raw");
             _messageHtml = await httpClient.GetStringAsync($"/api/Messages/{messageSummary.Id}/html");
             _messageContent = await httpClient.GetFromJsonAsync<Message>($"/api/Messages/{messageSummary.Id}");
@@ -57,6 +71,19 @@ namespace LocalSmtp.Client.Pages.Messages
         {
             Elements = await httpClient.GetFromJsonAsync<List<MessageSummary>>("/api/messages?sortColumn=receivedDate&sortIsDescending=true");
         }
+
+        private async Task DeleteDataAsync()
+        {
+            await httpClient.DeleteAsync("/api/messages/*");
+            Elements.Clear();
+        }
+
+        private async Task DeleteSelectedAsync()
+        {
+            await httpClient.DeleteAsync($"/api/messages/{SelectedMessage.Id}");
+            Elements.Remove(SelectedMessage);
+        }
+
 
         private bool FilterFunc1(MessageSummary element) => FilterFunc(element, searchString);
 
@@ -92,12 +119,9 @@ namespace LocalSmtp.Client.Pages.Messages
 
         private string SelectedRowStyleFunc(MessageSummary messageSummary, int rowNumber)
         {
-            if (mudTable.SelectedItem != null && mudTable.SelectedItem.Equals(messageSummary))
-            {
-                return "background-color: lightblue";
-            }
+            _selectedRowNumber = mudTable.SelectedItem?.Equals(messageSummary) == true ? rowNumber : -1;
 
-            return string.Empty;
+            return _selectedRowNumber == -1 ? string.Empty : "background-color: lightblue;";
         }
 
         public async ValueTask DisposeAsync()
@@ -106,6 +130,11 @@ namespace LocalSmtp.Client.Pages.Messages
             {
                 await _hubConnection.DisposeAsync();
             }
+        }
+
+        public string IsMailRead(bool isUnread)
+        {
+            return isUnread ? "font-weight: 700;" : "font-weight: 400;";
         }
     }
 }

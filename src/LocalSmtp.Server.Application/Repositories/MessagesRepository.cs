@@ -38,12 +38,18 @@ public class MessagesRepository : IMessagesRepository
     {
         return taskQueue.QueueTask(() =>
         {
-            Message? message = dbContext.Messages.FindAsync(id).Result;
+            var message = dbContext.Messages.FindAsync(id).Result;
+
             if (message?.IsUnread != true)
+            {
                 return;
+            }
+
             message.IsUnread = false;
+
             dbContext.SaveChanges();
-            notificationsHub.OnMessagesChanged().Wait();
+
+            notificationsHub.OnMessageReadChanged(message.Id).Wait();
         }, true);
     }
 
