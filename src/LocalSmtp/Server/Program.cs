@@ -10,16 +10,29 @@ using Serilog;
 
 namespace LocalSmtp.Server;
 
-public static class Program
+public class Program
 {
     public static void Main(string[] args)
     {
-        var builder = WebApplication.CreateBuilder(args);
+        var assembly = typeof(Program).Assembly;
+        var contentRoot = new FileInfo(assembly.Location).DirectoryName;
+
+        var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+        {
+            ApplicationName = assembly.GetName().Name,
+            WebRootPath = "wwwroot",
+            ContentRootPath = contentRoot,
+            Args = args
+        });
 
         ConfigureHost(builder.Host, builder.Configuration);
+
         ConfigureServices(builder.Services, builder.Configuration);
 
         var app = builder.Build();
+
+        var logger = app.Services.GetRequiredService<ILogger<Program>>();
+        logger.LogInformation("Content root: {contentRoot}", contentRoot);
 
         ConfigureWebApplication(app);
 
