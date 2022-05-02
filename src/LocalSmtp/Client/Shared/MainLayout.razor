@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+@inject HttpClient Http
 
 <MudThemeProvider />
 <MudDialogProvider />
@@ -7,10 +8,15 @@
 <MudLayout>
   <MudAppBar>
     <MudText>Local Smtp</MudText>
+    <div class="application-version">
+      <MudText Typo="Typo.caption">@Info?.InfoVersion</MudText>
+    </div>
     <MudSpacer />
-    <MudText>SMTP server listening on port 25</MudText>
-    <MudButton>
-      <MudIcon Icon="@Icons.Material.Filled.Settings" Style="color: white;"></MudIcon>
+    <div class="smtp-port-info">
+      <MudText Typo="Typo.caption">SMTP server listening on port @Server?.PortNumber</MudText>
+    </div>
+    <MudButton StartIcon="@Icons.Material.Filled.Settings" Style="color: white;">
+      Settings
     </MudButton>
   </MudAppBar>
   <MudMainContent>
@@ -18,3 +24,15 @@
   </MudMainContent>
 </MudLayout>
 
+@code {
+
+  private Server? Server = default!;
+  private Info? Info = default!;
+
+  protected override async Task OnInitializedAsync()
+  {
+    Server = await Http.GetFromJsonAsync<Server>("/api/Server");
+    Info = await Http.GetFromJsonAsync<Info>("/api/Info");
+  }
+
+}

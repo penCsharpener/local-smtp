@@ -1,3 +1,11 @@
 .mud-main-content {
   height: 100%;
 }
+
+.smtp-port-info {
+  margin-right: 30px;
+}
+
+.application-version {
+  margin-left: 30px;
+}

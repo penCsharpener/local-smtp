@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
+    <AssemblyVersion>0.5.0</AssemblyVersion>
+    <VersionPrefix>$(AssemblyVersion)-dev</VersionPrefix>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>LocalSmtp.Server-9c07805d-e8e0-421e-b08b-285ebc58d330</UserSecretsId>
