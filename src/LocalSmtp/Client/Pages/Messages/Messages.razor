@@ -29,7 +29,7 @@
       <MudDivider />
     </div>
 
-    <MudTable Items="@Elements" @ref="mudTable" T="MessageSummary" FixedHeader="true" FixedFooter="true" Dense="true" Hover="true" Bordered="false" Striped="true"
+    <MudTable Items="@messageSummaries" @ref="mudTable" T="MessageSummary" FixedHeader="true" FixedFooter="true" Dense="true" Hover="true" Bordered="false" Striped="true"
               Virtualize="true" Height="100%" Filter="new Func<MessageSummary,bool>(FilterFunc1)" RowStyleFunc="@SelectedRowStyleFunc"
               OnRowClick="@OnSelectedMessageChangedAsync" @bind-SelectedItem="SelectedMessage" RowsPerPage="50">
       <ToolBarContent>
@@ -38,10 +38,10 @@
         <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
       </ToolBarContent>
       <HeaderContent>
-        <MudTh>Received</MudTh>
-        <MudTh>From</MudTh>
-        <MudTh>To</MudTh>
-        <MudTh>Subject</MudTh>
+        <MudTh><MudTableSortLabel InitialDirection="SortDirection.Descending" SortBy="new Func<MessageSummary, object>(x => x.ReceivedDate)">Received</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<MessageSummary, object>(x => x.From)">From</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<MessageSummary, object>(x => x.To)">To</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<MessageSummary, object>(x => x.Subject)">Subject</MudTableSortLabel></MudTh>
       </HeaderContent>
       <RowTemplate>
         <MudTd Style="@IsMailRead(context.IsUnread)" DataLabel="Received">@context.ReceivedDate</MudTd>
@@ -55,8 +55,6 @@
     </MudTable>
   </MudItem>
   <MudItem xs="6">
-    <pre style="padding: 16px;">
-      @_messageRaw
-    </pre>
+    <MessageDetails Message="@_messageContent" HtmlMessage="@_messageHtml" RawMessage="@_messageRaw"></MessageDetails>
   </MudItem>
 </MudGrid>

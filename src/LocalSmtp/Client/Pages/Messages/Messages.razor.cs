@@ -7,7 +7,7 @@ namespace LocalSmtp.Client.Pages.Messages
 {
     public partial class Messages
     {
-        List<MessageSummary>? Elements = new();
+        List<MessageSummary>? messageSummaries = new();
         private string searchString = "";
         private MudTable<MessageSummary> mudTable;
         HubConnection _hubConnection = null;
@@ -40,7 +40,7 @@ namespace LocalSmtp.Client.Pages.Messages
 
         private async Task UpdateMessageReadAsync(Guid id)
         {
-            var message = Elements.Where(m => m.Id == id).FirstOrDefault();
+            var message = messageSummaries.Where(m => m.Id == id).FirstOrDefault();
 
             if (message is null)
             {
@@ -64,24 +64,25 @@ namespace LocalSmtp.Client.Pages.Messages
             _messageRaw = await httpClient.GetStringAsync($"/api/Messages/{messageSummary.Id}/raw");
             _messageHtml = await httpClient.GetStringAsync($"/api/Messages/{messageSummary.Id}/html");
             _messageContent = await httpClient.GetFromJsonAsync<Message>($"/api/Messages/{messageSummary.Id}");
+
             await InvokeAsync(StateHasChanged);
         }
 
         private async Task LoadDataAsync()
         {
-            Elements = await httpClient.GetFromJsonAsync<List<MessageSummary>>("/api/messages?sortColumn=receivedDate&sortIsDescending=true");
+            messageSummaries = await httpClient.GetFromJsonAsync<List<MessageSummary>>("/api/messages?sortColumn=receivedDate&sortIsDescending=true");
         }
 
         private async Task DeleteDataAsync()
         {
             await httpClient.DeleteAsync("/api/messages/*");
-            Elements.Clear();
+            messageSummaries.Clear();
         }
 
         private async Task DeleteSelectedAsync()
         {
             await httpClient.DeleteAsync($"/api/messages/{SelectedMessage.Id}");
-            Elements.Remove(SelectedMessage);
+            messageSummaries.Remove(SelectedMessage);
         }
 
 

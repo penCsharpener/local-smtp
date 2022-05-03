@@ -1,0 +1,83 @@
+﻿@inject HttpClient httpClient
+
+<div style="padding: 20px; height: 100%;">
+  @if (Message == null)
+  {
+    <MudSkeleton />
+    <MudSkeleton />
+    <MudSkeleton />
+  }
+  else
+  {
+    <MudGrid>
+      <MudItem xs="12">
+        <MudGrid Justify="Justify.FlexStart">
+          <MudItem xs="1">From:</MudItem>
+          <MudItem xs="11">@Message.From</MudItem>
+        </MudGrid>
+      </MudItem>
+      <MudItem xs="12">
+        <MudGrid>
+          <MudItem xs="1">To:</MudItem>
+          <MudItem xs="11">@Message.To</MudItem>
+        </MudGrid>
+      </MudItem>
+      <MudItem xs="12">
+        <MudGrid>
+          <MudItem xs="1">Subject:</MudItem>
+          <MudItem xs="11">@Message.Subject</MudItem>
+        </MudGrid>
+      </MudItem>
+      <MudItem xs="12">
+        <MudGrid>
+          <MudItem xs="1">Secure:</MudItem>
+          <MudItem xs="11">@Message?.SecureConnection.ToString()</MudItem>
+        </MudGrid>
+      </MudItem>
+      <MudItem xs="12" Class="message-detail-grid">
+        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-3">
+          <MudTabPanel Text="Body">
+            <MessageBodyView HtmlMessage="@HtmlMessage"></MessageBodyView>
+          </MudTabPanel>
+          <MudTabPanel Text="Headers">
+            <MessageHeaders Message="@Message"></MessageHeaders>
+          </MudTabPanel>
+          <MudTabPanel Text="Parts">
+            <MessageParts Message="@Message"></MessageParts>
+          </MudTabPanel>
+          <MudTabPanel Text="Source">
+            <MessageSource RawMessage="@RawMessage"></MessageSource>
+          </MudTabPanel>
+        </MudTabs>
+      </MudItem>
+    </MudGrid>
+  }
+</div>
+
+
+@code {
+
+  [Parameter]
+  public Message? Message { get; set; }
+
+  [Parameter]
+  public string? HtmlMessage { get; set; }
+
+  [Parameter]
+  public string? RawMessage { get; set; }
+}
+
+<style>
+  .mud-grid-spacing-xs-3 > .mud-grid-item {
+      padding: 10px;
+  }
+
+  .mud-tabs-panels {
+      height: 100%;
+  }
+
+  .message-detail-grid {
+      min-height: 1200px;
+      max-height: 100vh;
+  }
+</style>

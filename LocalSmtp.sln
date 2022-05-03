@@ -13,9 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LocalSmtp.Client", "src\Loc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LocalSmtp.Shared", "src\LocalSmtp\Shared\LocalSmtp.Shared.csproj", "{CFD632AE-1262-41DF-AA40-1A32E70621BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalSmtp.Server.Infrastructure", "src\LocalSmtp.Server.Persistence\LocalSmtp.Server.Infrastructure.csproj", "{8714B331-187F-4584-A19B-E036CB12A52A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LocalSmtp.Server.Infrastructure", "src\LocalSmtp.Server.Persistence\LocalSmtp.Server.Infrastructure.csproj", "{8714B331-187F-4584-A19B-E036CB12A52A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalSmtp.Server.Application", "src\LocalSmtp.Server.Application\LocalSmtp.Server.Application.csproj", "{260364EF-6265-4A5A-AB59-92999C1F4A5C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LocalSmtp.Server.Application", "src\LocalSmtp.Server.Application\LocalSmtp.Server.Application.csproj", "{260364EF-6265-4A5A-AB59-92999C1F4A5C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
