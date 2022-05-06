@@ -1,9 +1,4 @@
-﻿@using Microsoft.AspNetCore.SignalR.Client
-@inject NavigationManager Nav
-@inject HttpClient httpClient
-@implements IAsyncDisposable
-
-<div class="max-dimensions"> 
+﻿<div class="max-dimensions"> 
   <MudGrid Spacing="3">
     <MudItem xs="6">
       <MudTable Items="@messageSummaries" @ref="mudTable" T="MessageSummary" FixedHeader="true" FixedFooter="true" Dense="true" Hover="true" Bordered="false" Striped="true"
@@ -21,7 +16,9 @@
               <MudButton StartIcon="@Icons.Material.Filled.Refresh" OnClick="LoadDataAsync"></MudButton>
             </MudTooltip>
             <MudTooltip Text="Relay">
-              <MudButton Disabled="true" StartIcon="@Icons.Material.Filled.FastForward"></MudButton>
+              <MudButton Disabled="@(string.IsNullOrWhiteSpace(_serverInfo?.RelayOptions?.SmtpServer) || SelectedMessage == null)" 
+              StartIcon="@Icons.Material.Filled.FastForward"
+              OnClick="OpenRelayPopOver"></MudButton>
             </MudTooltip>
           </MudButtonGroup>
           <MudSpacer />
@@ -49,3 +46,16 @@
     </MudItem>
   </MudGrid>
 </div>
+
+<MudPopover Open="@_relayPopupOpen" Fixed="true" Class="px-4 pt-4">
+  <div class="d-flex flex-column gap-2">
+    <MudText Typo="Typo.h5">Relay Message</MudText>
+    <MudText>Email address(es) to relay to. Separate multiple with comma ','</MudText>
+    <MudTextField T="string" Placeholder="Address(es) to relay to" @bind-Text="@_overrideAddressesToRelay"></MudTextField>
+    <div class="d-flex flex-row justify-end gap-4">
+      <div class="flex-grow-1"></div>
+      <MudButton OnClick="@OpenRelayPopOver" Class="ml-auto mr-n3 mb-1" Color="Color.Secondary">Cancel</MudButton>
+      <MudButton OnClick="@RelayAsync" Class="ml-auto mr-n3 mb-1" Color="Color.Primary">Ok</MudButton>
+    </div>
+  </div>
+</MudPopover>

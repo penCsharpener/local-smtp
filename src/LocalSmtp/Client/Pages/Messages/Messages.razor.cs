@@ -1,11 +1,13 @@
+using Blazored.LocalStorage;
 using LocalSmtp.Shared.ApiModels;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 using MudBlazor;
 using System.Net.Http.Json;
 
 namespace LocalSmtp.Client.Pages.Messages
 {
-    public partial class Messages
+    public partial class Messages : IAsyncDisposable
     {
         List<MessageSummary>? messageSummaries = new();
         private string searchString = "";
@@ -15,8 +17,21 @@ namespace LocalSmtp.Client.Pages.Messages
         private string? _messageRaw;
         private string? _messageHtml;
         private int _selectedRowNumber = -1;
+        private Server? _serverInfo;
+
+        private string _overrideAddressesToRelay;
+        private bool _relayPopupOpen;
 
         public MessageSummary SelectedMessage { get; set; }
+
+        [Inject]
+        public ILocalStorageService LocalStorage { get; set; }
+
+        [Inject]
+        public HttpClient HttpClient { get; set; }
+
+        [Inject]
+        public NavigationManager Nav { get; set; }
 
         protected override async Task OnInitializedAsync()
         {
@@ -30,6 +45,8 @@ namespace LocalSmtp.Client.Pages.Messages
             _hubConnection.On<Guid>("messageReadChanged", UpdateMessageReadAsync);
 
             await _hubConnection.StartAsync();
+
+            _serverInfo = await LocalStorage.GetItemAsync<Server>("smtpInfo");
         }
 
         private async Task UpdateMessagesAsync(string msg)
@@ -58,33 +75,45 @@ namespace LocalSmtp.Client.Pages.Messages
 
             if (messageSummary.IsUnread)
             {
-                await httpClient.PostAsync($"api/Messages/{messageSummary.Id}", null);
+                await HttpClient.PostAsync($"api/Messages/{messageSummary.Id}", null);
             }
 
-            _messageRaw = await httpClient.GetStringAsync($"/api/Messages/{messageSummary.Id}/raw");
-            _messageHtml = await httpClient.GetStringAsync($"/api/Messages/{messageSummary.Id}/html");
-            _messageContent = await httpClient.GetFromJsonAsync<Message>($"/api/Messages/{messageSummary.Id}");
+            _messageRaw = await HttpClient.GetStringAsync($"/api/Messages/{messageSummary.Id}/raw");
+            _messageHtml = await HttpClient.GetStringAsync($"/api/Messages/{messageSummary.Id}/html");
+            _messageContent = await HttpClient.GetFromJsonAsync<Message>($"/api/Messages/{messageSummary.Id}");
 
             await InvokeAsync(StateHasChanged);
         }
 
         private async Task LoadDataAsync()
         {
-            messageSummaries = await httpClient.GetFromJsonAsync<List<MessageSummary>>("/api/messages?sortColumn=receivedDate&sortIsDescending=true");
+            messageSummaries = await HttpClient.GetFromJsonAsync<List<MessageSummary>>("/api/messages?sortColumn=receivedDate&sortIsDescending=true");
         }
 
         private async Task DeleteDataAsync()
         {
-            await httpClient.DeleteAsync("/api/messages/*");
+            await HttpClient.DeleteAsync("/api/messages/*");
             messageSummaries.Clear();
         }
 
         private async Task DeleteSelectedAsync()
         {
-            await httpClient.DeleteAsync($"/api/messages/{SelectedMessage.Id}");
+            await HttpClient.DeleteAsync($"/api/messages/{SelectedMessage.Id}");
             messageSummaries.Remove(SelectedMessage);
         }
 
+        private void OpenRelayPopOver()
+        {
+            _relayPopupOpen = !_relayPopupOpen;
+            _overrideAddressesToRelay = SelectedMessage.To;
+        }
+
+        private async Task RelayAsync()
+        {
+            var addresses = _overrideAddressesToRelay.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(a => a.Trim()).ToArray();
+            await HttpClient.PostAsJsonAsync($"/api/messages/{SelectedMessage.Id}/relay", new { OverrideRecipientAddresses = addresses });
+            OpenRelayPopOver();
+        }
 
         private bool FilterFunc1(MessageSummary element) => FilterFunc(element, searchString);
 
