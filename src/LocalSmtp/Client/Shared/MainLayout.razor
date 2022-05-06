@@ -1,5 +1,7 @@
 ﻿@inherits LayoutComponentBase
 @inject HttpClient Http
+@inject ILocalStorageService LocalStore
+@using Blazored.LocalStorage
 
 <MudThemeProvider />
 <MudDialogProvider />
@@ -31,8 +33,20 @@
 
   protected override async Task OnInitializedAsync()
   {
-    Server = await Http.GetFromJsonAsync<Server>("/api/Server");
-    Info = await Http.GetFromJsonAsync<Info>("/api/Info");
-  }
+    Server = await LocalStore.GetItemAsync<Server>("smtpInfo");
 
+    if (Server == null)
+    {
+      Server = await Http.GetFromJsonAsync<Server>("/api/Server");
+      await LocalStore.SetItemAsync<Server>("smtpInfo", Server!);
+    }
+
+    Info = await LocalStore.GetItemAsync<Info>("serverInfo");
+
+    if (Info == null)
+    {
+      Info = await Http.GetFromJsonAsync<Info>("/api/Info");
+      await LocalStore.SetItemAsync<Info>("serverInfo", Info!);
+    }
+  }
 }
