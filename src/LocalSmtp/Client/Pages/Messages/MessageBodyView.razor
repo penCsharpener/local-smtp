@@ -1,16 +1,13 @@
 ﻿@inject HttpClient httpClient
 
-<div class="html-view">
+<div style="height: calc(100vh - @(DecreaseHeight)px);">
     <iframe srcdoc="@HtmlMessage"></iframe>
 </div>
 
 @code {
   [Parameter]
   public string? HtmlMessage { get; set; }
+  
+  [Parameter]
+  public int DecreaseHeight { get; set; }
 }
-
-<style>
-  .html-view {
-      height: calc(100vh - 385px);
-  }
-</style>

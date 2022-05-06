@@ -1,8 +1,8 @@
 ﻿
-@if (Message?.Headers != null)
+@if (Message?.Headers != null || Headers != null)
 {
-  <div class="fit-headers-to-panel">
-    <MudTable Items="@Message.Headers" Hover="true" SortLabel="Sort By">
+  <div style="height: calc(100vh - @(DecreaseHeight)px);">
+    <MudTable Items="@(Message?.Headers ?? Headers)" Hover="true" SortLabel="Sort By">
         <HeaderContent>
             <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<Header, object>(x=>x.Name)">Name</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<Header, object>(x=>x.Value)">Value</MudTableSortLabel></MudTh>
@@ -18,4 +18,10 @@
 @code {
   [Parameter]
   public Message? Message { get; set; }
+
+  [Parameter]
+  public List<Header>? Headers { get; set; }
+
+  [Parameter]
+  public int DecreaseHeight { get; set; }
 }

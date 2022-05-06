@@ -6,7 +6,3 @@
     white-space: -o-pre-wrap;
     word-wrap: break-word;
 }
-
-.fit-to-screen {
-    height: calc(100vh - 385px);
-}

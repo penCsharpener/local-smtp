@@ -1,10 +1,15 @@
 ﻿@inject HttpClient httpClient
 
-<pre class="raw-message-wrap fit-to-screen">
-  @RawMessage
-</pre>
+<div class="raw-message-wrap fit-to-screen" style="height: calc(100vh - @(DecreaseHeight)px);">
+  <pre>
+    @RawMessage
+  </pre>
+</div>
 
 @code {
   [Parameter]
   public string RawMessage { get; set; }
+
+  [Parameter]
+  public int DecreaseHeight { get; set; }
 }

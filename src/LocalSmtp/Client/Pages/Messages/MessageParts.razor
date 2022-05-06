@@ -1,6 +1,62 @@
-﻿
+﻿@inject HttpClient Http
+
+@if (Message != null)
+{
+  <MudTreeView Items="Message.Parts.ToHashSet()" Color="Color.Primary" T="MessageEntitySummary" Hover="true" @bind-ActivatedValue="SelectedValue">
+    <ItemTemplate>
+      <MudTreeViewItem Value="@context" Items="@context.ChildParts.ToHashSet()" Text="@context.Name" Icon="@Icons.Filled.Newspaper" />
+    </ItemTemplate>
+  </MudTreeView>
+}
+
+@if (SelectedValue != null)
+{
+  <div class="sub-tab-panel-height">
+    <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-3">
+      <MudTabPanel Text="Headers">
+        <MessageHeaders Headers=@SelectedValue.Headers DecreaseHeight="480"></MessageHeaders>
+      </MudTabPanel>
+      @if (!string.IsNullOrWhiteSpace(_htmlpart))
+      {
+        <MudTabPanel Text="Body">
+          <MessageBodyView HtmlMessage="@_htmlpart" DecreaseHeight="480"></MessageBodyView>
+        </MudTabPanel>
+      }
+      @if (!string.IsNullOrWhiteSpace(_rawpart))
+      {
+        <MudTabPanel Text="Source">
+          <MessageSource RawMessage="@_rawpart" DecreaseHeight="480"></MessageSource>
+        </MudTabPanel>
+      }
+    </MudTabs>
+  </div>
+}
 
 @code {
   [Parameter]
   public Message? Message { get; set; }
+
+  public MessageEntitySummary SelectedValue { get; set; }
+  private string _htmlpart;
+  private string _rawpart;
+
+  protected override async Task OnParametersSetAsync()
+  {
+    if (Message != null && SelectedValue != null)
+    {
+      _htmlpart = await Http.GetStringAsync($"/api/Messages/{Message.Id}/part/{SelectedValue.Id}/source");
+      _rawpart = await Http.GetStringAsync($"/api/Messages/{Message.Id}/part/{SelectedValue.Id}/raw");
+    }
+    else
+    {
+      _htmlpart = string.Empty;
+      _rawpart = string.Empty;
+    }
+  }
 }
+
+<style>
+.sub-tab-panel-height {
+  overflow: auto;
+}
+</style>

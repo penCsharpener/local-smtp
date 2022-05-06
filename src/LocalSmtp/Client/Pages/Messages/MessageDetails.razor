@@ -33,25 +33,24 @@
           <MudItem xs="11">@Message?.SecureConnection.ToString()</MudItem>
         </MudGrid>
       </MudItem>
-      <MudItem xs="12" Class="message-detail-grid">
+      <MudItem xs="12">
         <MudTabs Class="tab-tabs-fixed-height" Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-3">
           <MudTabPanel Text="Body">
-            <MessageBodyView HtmlMessage="@HtmlMessage"></MessageBodyView>
+            <MessageBodyView HtmlMessage="@HtmlMessage" DecreaseHeight="375"></MessageBodyView>
           </MudTabPanel>
           <MudTabPanel Text="Headers">
-            <MessageHeaders Message="@Message"></MessageHeaders>
+            <MessageHeaders Message="@Message" DecreaseHeight="400"></MessageHeaders>
           </MudTabPanel>
           <MudTabPanel Text="Parts">
             <MessageParts Message="@Message"></MessageParts>
           </MudTabPanel>
           <MudTabPanel Text="Source">
-            <MessageSource RawMessage="@RawMessage"></MessageSource>
+            <MessageSource RawMessage="@RawMessage" DecreaseHeight="375"></MessageSource>
           </MudTabPanel>
         </MudTabs>
       </MudItem>
     </MudGrid>
   }
-
 
 @code {
 
@@ -68,21 +67,6 @@
 <style>
   .mud-grid-spacing-xs-3 > .mud-grid-item {
       padding: 10px;
-  }
-
-  .mud-tabs-panels {
-      height: 100%;
-  }
-
-  .message-detail-grid {
-      height: 100%;
-  }
-
-  .hfillpanel {
-      display: flex;
-      flex-direction: column;
-      align-content: stretch;
-      justify-content: space-between;
   }
 
   .tab-tabs-fixed-height {
