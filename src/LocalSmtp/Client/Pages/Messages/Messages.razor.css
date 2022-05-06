@@ -1,11 +1,15 @@
 ﻿.divider {
-  padding: 8px 0 8px 0;
+    padding: 8px 0 8px 0;
 }
 
 .mail-read {
-  font-weight: 400;
+    font-weight: 400;
 }
 
 .mail-unread {
-  font-weight: 700;
+    font-weight: 700;
+}
+
+.max-dimensions {
+  max-height: 100%
 }

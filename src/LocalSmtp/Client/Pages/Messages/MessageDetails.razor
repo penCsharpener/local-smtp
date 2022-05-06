@@ -1,6 +1,5 @@
 ﻿@inject HttpClient httpClient
 
-<div style="padding: 20px; height: 100%;">
   @if (Message == null)
   {
     <MudSkeleton />
@@ -35,7 +34,7 @@
         </MudGrid>
       </MudItem>
       <MudItem xs="12" Class="message-detail-grid">
-        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-3">
+        <MudTabs Class="tab-tabs-fixed-height" Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-3">
           <MudTabPanel Text="Body">
             <MessageBodyView HtmlMessage="@HtmlMessage"></MessageBodyView>
           </MudTabPanel>
@@ -52,7 +51,6 @@
       </MudItem>
     </MudGrid>
   }
-</div>
 
 
 @code {
@@ -77,7 +75,17 @@
   }
 
   .message-detail-grid {
-      min-height: 1200px;
-      max-height: 100vh;
+      height: 100%;
+  }
+
+  .hfillpanel {
+      display: flex;
+      flex-direction: column;
+      align-content: stretch;
+      justify-content: space-between;
+  }
+
+  .tab-tabs-fixed-height {
+    height: calc(100vh - 301px);
   }
 </style>

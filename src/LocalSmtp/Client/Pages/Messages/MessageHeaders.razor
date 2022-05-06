@@ -1,19 +1,18 @@
 ﻿
 @if (Message?.Headers != null)
 {
-  <MudTable Items="@Message.Headers" Hover="true" SortLabel="Sort By" RowsPerPage="20">
-      <HeaderContent>
-          <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<Header, object>(x=>x.Name)">Name</MudTableSortLabel></MudTh>
-          <MudTh><MudTableSortLabel SortBy="new Func<Header, object>(x=>x.Value)">Value</MudTableSortLabel></MudTh>
-      </HeaderContent>
-      <RowTemplate>
-          <MudTd DataLabel="Name">@context.Name</MudTd>
-          <MudTd DataLabel="Value">@context.Value</MudTd>
-      </RowTemplate>
-      <PagerContent>
-          <MudTablePager PageSizeOptions="new int[]{20, 50}" />
-      </PagerContent>
-  </MudTable>
+  <div class="fit-headers-to-panel">
+    <MudTable Items="@Message.Headers" Hover="true" SortLabel="Sort By">
+        <HeaderContent>
+            <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<Header, object>(x=>x.Name)">Name</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<Header, object>(x=>x.Value)">Value</MudTableSortLabel></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Value">@context.Value</MudTd>
+        </RowTemplate>
+    </MudTable>
+  </div>
 }
 
 @code {
