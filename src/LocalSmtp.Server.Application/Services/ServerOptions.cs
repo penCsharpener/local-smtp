@@ -21,7 +21,6 @@ public class ServerOptions
     public string Database { get; set; } = "database.db";
     public int NumberOfMessagesToKeep { get; set; } = 100;
     public int NumberOfSessionsToKeep { get; set; } = 100;
-    public string BasePath { get; set; } = "/";
     public TlsMode TlsMode { get; set; } = TlsMode.None;
     public string TlsCertificate { get; set; }
     public string TlsCertificatePrivateKey { get; set; }
