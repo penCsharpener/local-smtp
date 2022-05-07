@@ -1,0 +1,12 @@
+﻿.raw-session-wrap {
+    box-sizing: border-box;
+    display: block;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+    width: 100%;
+    overflow-x: auto;
+}

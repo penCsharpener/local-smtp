@@ -34,7 +34,7 @@
           <MudItem xs="11">@Message?.SecureConnection.ToString()</MudItem>
       </MudItem>
       <MudItem xs="12">
-        <MudTabs Class="tab-tabs-fixed-height" Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-3">
+        <MudTabs Style="@($"height: calc(100vh - {DecreaseHeight}px)")" Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-3">
           <MudTabPanel Text="Body">
             <MessageBodyView HtmlMessage="@HtmlMessage" DecreaseHeight="375"></MessageBodyView>
           </MudTabPanel>
@@ -62,6 +62,9 @@
 
   [Parameter]
   public string? RawMessage { get; set; }
+  
+  [Parameter]
+  public int DecreaseHeight { get; set; }
 
   private async Task DownloadAsync()
   {
@@ -72,9 +75,5 @@
 <style>
   .mud-grid-spacing-xs-3 > .mud-grid-item {
       padding: 10px;
-  }
-
-  .tab-tabs-fixed-height {
-    height: calc(100vh - 301px);
   }
 </style>

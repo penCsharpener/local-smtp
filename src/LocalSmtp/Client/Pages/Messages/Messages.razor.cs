@@ -151,7 +151,7 @@ namespace LocalSmtp.Client.Pages.Messages
         {
             _selectedRowNumber = mudTable.SelectedItem?.Equals(messageSummary) == true ? rowNumber : -1;
 
-            return _selectedRowNumber == -1 ? string.Empty : "background-color: lightblue;";
+            return _selectedRowNumber == -1 ? string.Empty : Constants.Css.SelectedRowBackgroundColor;
         }
 
         public async ValueTask DisposeAsync()

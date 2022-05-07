@@ -1,1 +1,39 @@
-﻿
+﻿<div class="max-dimensions"> 
+  <MudGrid Spacing="3">
+    <MudItem md="5" lg="4" xxl="3">
+      <MudTable Items="@sessionSummaries" @ref="mudTable" T="SessionSummary" FixedHeader="true" FixedFooter="true" Dense="true" Hover="true" Bordered="false" Striped="true"
+                Virtualize="true" Height="calc(100vh - 275px)" RowStyleFunc="@SelectedRowStyleFunc"
+                OnRowClick="@OnSelectedMessageChangedAsync" @bind-SelectedItem="SelectedSession" RowsPerPage="25" HorizontalScrollbar="true">
+        <ToolBarContent>
+          <MudButtonGroup Color="Color.Default" Variant="Variant.Filled" Style="margin-top: 18px;">
+            <MudTooltip Text="Clear all sessions">
+              <MudButton Disabled="SelectedSession == null" StartIcon="@Icons.Material.Filled.Close" OnClick="DeleteDataAsync"></MudButton>
+            </MudTooltip>
+            <MudTooltip Text="Delete selected">
+              <MudButton StartIcon="@Icons.Material.Filled.Delete" OnClick="DeleteSelectedAsync"></MudButton>
+            </MudTooltip>
+            <MudTooltip Text="Refresh sessions">
+              <MudButton StartIcon="@Icons.Material.Filled.Refresh" OnClick="LoadDataAsync"></MudButton>
+            </MudTooltip>
+          </MudButtonGroup>
+        </ToolBarContent>
+        <HeaderContent>
+          <MudTh><MudTableSortLabel InitialDirection="SortDirection.Descending" SortBy="new Func<SessionSummary, object>(x => x.EndDate)">End Date</MudTableSortLabel></MudTh>
+          <MudTh><MudTableSortLabel SortBy="new Func<SessionSummary, object>(x => x.ClientAddress)">Client Address</MudTableSortLabel></MudTh>
+          <MudTh><MudTableSortLabel SortBy="new Func<SessionSummary, object>(x => x.NumberOfMessages)">Messages</MudTableSortLabel></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+          <MudTd DataLabel="End Date">@context.EndDate</MudTd>
+          <MudTd DataLabel="Client Address">@context.ClientAddress</MudTd>
+          <MudTd DataLabel="Messages">@context.NumberOfMessages</MudTd>
+        </RowTemplate>
+        <PagerContent>
+          <MudTablePager PageSizeOptions="new int[] {10, 25, 50, 100, 200}" />
+        </PagerContent>
+      </MudTable>
+    </MudItem>
+    <MudItem md="7" lg="8" xxl="9">
+      <SessionDetails Session="@_sessionContent" SessionRaw="@_sessionRaw" DecreaseHeight="210"></SessionDetails>
+    </MudItem>
+  </MudGrid>
+</div>

@@ -1,0 +1,22 @@
+﻿@inject HttpClient httpClient
+
+@if (Session == null)
+{
+  <MudSkeleton />
+  <MudSkeleton />
+  <MudSkeleton />
+}
+else
+{
+  <div class="d-flex flex-column gap-3">
+    <div class="d-flex justify-start">
+      <MudButton Style="width: 150px;" StartIcon="@Icons.Material.Filled.Newspaper" Variant="Variant.Filled" Disabled="@(Session == null)" Href="@($"/api/sessions/{Session.Id}/log")" Target="_blank">Open</MudButton>
+    </div>
+    <div class="raw-session-wrap" style="height: calc(100vh - @(DecreaseHeight)px);">
+      <pre>
+        @SessionRaw
+      </pre>
+    </div>
+  </div>
+}
+
