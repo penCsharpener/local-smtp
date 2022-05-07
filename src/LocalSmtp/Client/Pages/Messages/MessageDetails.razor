@@ -3,9 +3,12 @@
 
   @if (Message == null)
   {
-    <MudSkeleton />
-    <MudSkeleton />
-    <MudSkeleton />
+    <div class="d-flex flex-column gap-4" style="margin: 20px;">
+      <MudSkeleton Width="100%" Height="50px" />
+      <MudSkeleton Width="100%" Height="50px" />
+      <MudSkeleton Width="100%" Height="50px" />
+      <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="500px"/>
+    </div>
   }
   else
   {

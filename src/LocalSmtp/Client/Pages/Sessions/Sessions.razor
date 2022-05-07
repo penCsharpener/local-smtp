@@ -1,4 +1,6 @@
-﻿<div class="max-dimensions"> 
+﻿@page "/sessions"
+
+<div class="max-dimensions"> 
   <MudGrid Spacing="3">
     <MudItem md="5" lg="4" xxl="3">
       <MudTable Items="@sessionSummaries" @ref="mudTable" T="SessionSummary" FixedHeader="true" FixedFooter="true" Dense="true" Hover="true" Bordered="false" Striped="true"

@@ -14,15 +14,20 @@
       <MudText Typo="Typo.caption">@Info?.InfoVersion</MudText>
     </div>
     <MudSpacer />
+    <MudButton StartIcon="@Icons.Material.Filled.Email" Color="Color.Inherit" Href="messages">Messages</MudButton>
+    <MudButton StartIcon="@Icons.Material.Filled.PunchClock" Color="Color.Inherit" Href="sessions">Sessions</MudButton>
+    <MudSpacer />
     <div class="smtp-port-info">
       <MudText Typo="Typo.caption">SMTP server listening on port @Server?.PortNumber</MudText>
     </div>
-    <MudButton StartIcon="@Icons.Material.Filled.Settings" Style="color: white;">
+    <MudButton StartIcon="@Icons.Material.Filled.Settings" Color="Color.Inherit" >
       Settings
     </MudButton>
   </MudAppBar>
   <MudMainContent>
-    @Body
+    <div style="margin: 10px;">
+      @Body
+    </div>
   </MudMainContent>
 </MudLayout>
 
