@@ -5,7 +5,7 @@
                 Virtualize="true" Height="calc(100vh - 275px)" Filter="new Func<MessageSummary,bool>(FilterFunc1)" RowStyleFunc="@SelectedRowStyleFunc"
                 OnRowClick="@OnSelectedMessageChangedAsync" @bind-SelectedItem="SelectedMessage" RowsPerPage="25" HorizontalScrollbar="true">
         <ToolBarContent>
-          <MudButtonGroup Color="Color.Primary" Variant="Variant.Filled" Style="margin-top: 18px;">
+          <MudButtonGroup Color="Color.Default" Variant="Variant.Filled" Style="margin-top: 18px;">
             <MudTooltip Text="Delete selected">
               <MudButton Disabled="SelectedMessage == null" StartIcon="@Icons.Material.Filled.Close" OnClick="DeleteSelectedAsync"></MudButton>
             </MudTooltip>
