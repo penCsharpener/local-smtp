@@ -1,25 +1,27 @@
 ﻿@inject HttpClient httpClient
 
-@if (Session == null)
-{
-  <div class="d-flex flex-column gap-4" style="margin: 20px;">
-    <MudSkeleton Width="100%" Height="50px" />
-    <MudSkeleton Width="100%" Height="50px" />
-    <MudSkeleton Width="100%" Height="50px" />
-    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="500px"/>
-  </div>
-}
-else
-{
-  <div class="d-flex flex-column gap-3">
-    <div class="d-flex justify-start">
-      <MudButton Style="width: 150px;" StartIcon="@Icons.Material.Filled.Newspaper" Variant="Variant.Filled" Disabled="@(Session == null)" Href="@($"/api/sessions/{Session.Id}/log")" Target="_blank">Open</MudButton>
+<div class="relative" style="margin: 50px 20px 0 0;">
+  @if (Session == null)
+  {
+    <div class="d-flex flex-column gap-4" style="margin: 20px;">
+      <MudSkeleton Width="100%" Height="50px" />
+      <MudSkeleton Width="100%" Height="50px" />
+      <MudSkeleton Width="100%" Height="50px" />
+      <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="500px"/>
     </div>
-    <div class="raw-session-wrap" style="height: calc(100vh - @(DecreaseHeight)px);">
-      <pre>
-        @SessionRaw
-      </pre>
+  }
+  else
+  {
+    <div class="d-flex flex-column gap-3">
+      <div class="d-flex justify-start">
+        <MudButton Style="width: 150px;" StartIcon="@Icons.Material.Filled.Newspaper" Variant="Variant.Filled" Disabled="@(Session == null)" Href="@($"/api/sessions/{Session.Id}/log")" Target="_blank">Open</MudButton>
+      </div>
+      <div class="raw-session-wrap" style="height: calc(100vh - @(DecreaseHeight)px);">
+        <pre>
+          @SessionRaw
+        </pre>
+      </div>
     </div>
-  </div>
-}
+  }
+</div>
 

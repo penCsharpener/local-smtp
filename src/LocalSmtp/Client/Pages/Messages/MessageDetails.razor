@@ -1,6 +1,7 @@
 ﻿@inject HttpClient httpClient
 @inject IJSRuntime JSRuntime
 
+<div class="relative" style="margin: 50px 20px 0 0;">
   @if (Message == null)
   {
     <div class="d-flex flex-column gap-4" style="margin: 20px;">
@@ -32,28 +33,29 @@
           <MudItem xs="11">@Message.Subject</MudItem>
         </MudGrid>
       </MudItem>
-      <MudItem xs="12" Class="d-flex flex-row">
+      <MudItem xs="12">
           <MudItem xs="1">Secure:</MudItem>
           <MudItem xs="11">@Message?.SecureConnection.ToString()</MudItem>
       </MudItem>
       <MudItem xs="12">
         <MudTabs Style="@($"height: calc(100vh - {DecreaseHeight}px)")" Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-3">
           <MudTabPanel Text="Body">
-            <MessageBodyView HtmlMessage="@HtmlMessage" DecreaseHeight="375"></MessageBodyView>
+            <MessageBodyView HtmlMessage="@HtmlMessage" DecreaseHeight="400"></MessageBodyView>
           </MudTabPanel>
           <MudTabPanel Text="Headers">
-            <MessageHeaders Message="@Message" DecreaseHeight="400"></MessageHeaders>
+            <MessageHeaders Message="@Message" DecreaseHeight="425"></MessageHeaders>
           </MudTabPanel>
           <MudTabPanel Text="Parts">
             <MessageParts Message="@Message"></MessageParts>
           </MudTabPanel>
           <MudTabPanel Text="Source">
-            <MessageSource RawMessage="@RawMessage" DecreaseHeight="375"></MessageSource>
+            <MessageSource RawMessage="@RawMessage" DecreaseHeight="400"></MessageSource>
           </MudTabPanel>
         </MudTabs>
       </MudItem>
     </MudGrid>
   }
+</div>
 
 @code {
 
@@ -74,9 +76,3 @@
     await JSRuntime.InvokeVoidAsync("downloadFromUrl", new {Url = $"api/messages/{Message.Id}/download", FileName = "foo.jpeg"});
   }
 }
-
-<style>
-  .mud-grid-spacing-xs-3 > .mud-grid-item {
-      padding: 10px;
-  }
-</style>
