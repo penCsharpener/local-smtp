@@ -4,6 +4,7 @@
 
 .settings-content {
   padding: 15px 10px;
+  min-width: 500px;
 }
 
 .settings-layout-header {

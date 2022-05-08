@@ -1,7 +1,25 @@
 ﻿@page "/settings/relay"
 
-<h3>RelaySettings</h3>
+<MudText Class="mb-5" Typo="Typo.h5">Message Relay</MudText>
 
-@code {
+<MudForm Class="d-flex flex-column gap-4" @ref="_form" @bind-IsValid="@_isFormValid">
+  <MudSwitch T="bool" Class="ml-n2" Required="false" Label="Message Relay Enabled" @bind-Checked="_isRelayEnabled" />
+  <MudTextField T="string" @bind-Value="_hostName" Label="Hostname" Variant="Variant.Outlined" Required="true" RequiredError="Hostname is required!"></MudTextField>
+  <MudNumericField @bind-Value="_relaySmtpPort" Label="Port" Variant="Variant.Outlined" />
+  <MudSelect T="string" Label="Tls Mode" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined" @bind-Value="_tlsMode">
+    <MudSelectItem Value="@("None")" />
+    <MudSelectItem Value="@("Auto")" />
+    <MudSelectItem Value="@("SslOnConnect")" />
+    <MudSelectItem Value="@("StartTls")" />
+    <MudSelectItem Value="@("StartTlsWhenAvailable")" />
+  </MudSelect>
+  <MudTextField T="string" @bind-Value="_username" Label="Login" Variant="Variant.Outlined"></MudTextField>
+  <MudTextField T="string" @bind-Value="_password" Label="Password" Variant="Variant.Outlined"
+                InputType="@_passwordInput" Adornment="Adornment.End" AdornmentIcon="@_passwordInputIcon" OnAdornmentClick="PasswordButtonClick" AdornmentAriaLabel="Show Password"></MudTextField>
+  <MudTextField T="string" @bind-Value="_senderAddresses" Label="Sender Address - leave blank to use original sender" Variant="Variant.Outlined"></MudTextField>
+  <MudTextField T="string" @bind-Value="_autoRelay" Label="Auto-Relay Recipients (comma separated list)" Variant="Variant.Outlined"></MudTextField>
+  <div class="d-flex align-center justify-space-between mt-6">
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!_isFormValid)" Class="ml-auto">Save</MudButton>
+  </div>
+</MudForm>
 
-}
