@@ -31,12 +31,19 @@
         <MudTh><MudTableSortLabel InitialDirection="SortDirection.Descending" SortBy="new Func<MessageSummary, object>(x => x.ReceivedDate)">Received</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<MessageSummary, object>(x => x.From)">From</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<MessageSummary, object>(x => x.To)">To</MudTableSortLabel></MudTh>
+        <MudTh Style="padding: 6px 4px; width: 25px;"></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<MessageSummary, object>(x => x.Subject)">Subject</MudTableSortLabel></MudTh>
       </HeaderContent>
       <RowTemplate>
         <MudTd Style="@IsMailRead(context.IsUnread)" DataLabel="Received">@context.ReceivedDate</MudTd>
         <MudTd Style="@IsMailRead(context.IsUnread)" DataLabel="From">@context.From</MudTd>
         <MudTd Style="@IsMailRead(context.IsUnread)" DataLabel="To">@context.To</MudTd>
+        <MudTd Style="@(IsMailRead(context.IsUnread) + "padding: 6px 4px; width: 25px;")" DataLabel="">
+          @if (@context.IsRelayed)
+          {
+            <MudIcon Icon="@Icons.Material.Filled.FastForward" Color="Color.Default" Size="Size.Small"></MudIcon>
+          }
+        </MudTd>
         <MudTd Style="@IsMailRead(context.IsUnread)" DataLabel="Subject">@context.Subject</MudTd>
       </RowTemplate>
       <PagerContent>
@@ -45,7 +52,7 @@
     </MudTable>
   </MudItem>
   <MudItem xs="6">
-    <MessageDetails Message="@_messageContent" HtmlMessage="@_messageHtml" RawMessage="@_messageRaw" DecreaseHeight="330"></MessageDetails>
+    <MessageDetails Message="@_messageContent" HtmlMessage="@_messageHtml" RawMessage="@_messageRaw" DecreaseHeight="270"></MessageDetails>
   </MudItem>
 </MudGrid>
 
