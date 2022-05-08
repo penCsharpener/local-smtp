@@ -1,0 +1,21 @@
+﻿@page "/settings"
+@inherits LayoutComponentBase
+@layout MainLayout
+
+<div class="settings-padding d-flex flex-column gap-4">
+  <div class="settings-layout-header">
+    <MudText Typo="Typo.h3">Settings</MudText>
+  </div>
+  <div class="d-flex flex-row gap-10">
+    <div class="settings-menu-buttons d-flex flex-column">
+      <MudIconButton Size="Size.Large" Color="Color.Primary" Icon="@Icons.Material.Filled.Mail" Href="settings/smtp">Smtp</MudIconButton>
+      <MudIconButton Size="Size.Large" Color="Color.Primary" Icon="@Icons.Material.Filled.AlternateEmail" Href="settings/imap">Imap</MudIconButton>
+      <MudIconButton Size="Size.Large" Color="Color.Primary" Icon="@Icons.Material.Filled.StopScreenShare" Href="settings/limits">Limits</MudIconButton>
+      <MudIconButton Size="Size.Large" Color="Color.Primary" Icon="@Icons.Material.Filled.FastForward" Href="settings/relay">Relay</MudIconButton>
+    </div>
+    <div class="settings-content">
+      @Body
+    </div>
+  </div>
+</div>
+

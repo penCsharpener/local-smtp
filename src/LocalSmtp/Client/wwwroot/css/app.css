@@ -8,3 +8,7 @@ body {
 #app {
     flex-grow: 1;
 }
+
+.settings-menu-buttons .mud-icon-size-large {
+  font-size: 4rem;
+}
