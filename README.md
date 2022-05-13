@@ -10,6 +10,8 @@ LocalSmtp is a fork of the backend of rnwood/smtp4dev. Since smtp4dev hasn't bee
 
 What I'm not going to do myself is adding Docker support. I invite anyone to submit Docker support via pull request.
 
+![local-smtp](https://user-images.githubusercontent.com/26190934/168400943-f0308167-dbc7-4186-a177-29c18c3082c8.gif)
+
 ## Adding Migrations
 
 ```
