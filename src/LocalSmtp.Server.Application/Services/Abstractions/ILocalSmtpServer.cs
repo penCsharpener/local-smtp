@@ -19,7 +19,7 @@ namespace LocalSmtp.Server.Application.Services.Abstractions;
 public interface ILocalSmtpServer
 {
     RelayResult TryRelayMessage(Message message, MailboxAddress[] overrideRecipients);
-    Exception Exception { get; }
+    Exception? Exception { get; }
     bool IsRunning { get; }
     int PortNumber { get; }
     void TryStart();

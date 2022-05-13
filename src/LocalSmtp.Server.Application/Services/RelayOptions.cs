@@ -18,9 +18,9 @@ namespace LocalSmtp.Server.Application.Services;
 public class RelayOptions
 {
     private int smtpPort = 25;
-    public bool IsEnabled => SmtpServer != string.Empty;
+    public bool IsEnabled => !string.IsNullOrWhiteSpace(SmtpServer);
 
-    public string SmtpServer { get; set; } = string.Empty;
+    public string? SmtpServer { get; set; } = default!;
 
     public int SmtpPort
     {
@@ -35,19 +35,19 @@ public class RelayOptions
 
     public SecureSocketOptions TlsMode { get; set; } = SecureSocketOptions.Auto;
 
-    public string[] AutomaticEmails { get; set; } = Array.Empty<string>();
+    public string[]? AutomaticEmails { get; set; } = default!;
 
-    public string SenderAddress { get; set; } = "";
+    public string? SenderAddress { get; set; } = default!;
 
-    public string Login { get; set; } = "";
+    public string? Login { get; set; } = default!;
 
-    public string Password { get; set; } = "";
+    public string? Password { get; set; } = default!;
 
     //[Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     public string AutomaticEmailsString
     {
-        get => string.Join(",", AutomaticEmails);
+        get => string.Join(",", AutomaticEmails ?? Array.Empty<string>());
         set => AutomaticEmails = value.Split(',');
     }
 

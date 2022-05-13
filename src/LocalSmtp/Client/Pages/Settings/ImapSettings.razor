@@ -2,10 +2,14 @@
 
 <MudText Class="mb-5" Typo="Typo.h5">IMAP</MudText>
 
-<MudForm Class="d-flex flex-column gap-4" @ref="_form" @bind-IsValid="@_isFormValid">
-  <MudNumericField @bind-Value="_imapPort" Label="Port" Variant="Variant.Outlined" />
-  <div class="d-flex align-center justify-space-between mt-6">
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!_isFormValid)" Class="ml-auto">Save</MudButton>
-  </div>
-</MudForm>
+@if (_server is not null)
+{
 
+  <MudForm Class="d-flex flex-column gap-4" @ref="_form" Model="_server" @bind-IsValid="@_isFormValid">
+    <MudNumericField @bind-Value="_server.ImapPortNumber" For="@(() => _server.ImapPortNumber)" Label="Port" Variant="Variant.Outlined" />
+    <div class="d-flex align-center justify-space-between mt-6">
+      <MudButton Class="ml-auto" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!_isFormValid)" OnClick="@(async () => await SubmitAsync())">Save</MudButton>
+    </div>
+  </MudForm>
+
+}

@@ -2,10 +2,15 @@
 
 <MudText Class="mb-5" Typo="Typo.h5">Limits</MudText>
 
-<MudForm Class="d-flex flex-column gap-4" @ref="_form" @bind-IsValid="@_isFormValid">
-  <MudNumericField @bind-Value="_messagesLimit" Label="Number of messages to keep" Variant="Variant.Outlined" />
-  <MudNumericField @bind-Value="_sessionsLimit" Label="Number of sessions to keep" Variant="Variant.Outlined" />
-  <div class="d-flex align-center justify-space-between mt-6">
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!_isFormValid)" Class="ml-auto">Save</MudButton>
-  </div>
-</MudForm>
+@if (_server is not null)
+{
+
+  <MudForm Class="d-flex flex-column gap-4" @ref="_form" Model="_server" @bind-IsValid="@_isFormValid">
+    <MudNumericField @bind-Value="_server.NumberOfMessagesToKeep" Label="Number of messages to keep" Variant="Variant.Outlined" />
+    <MudNumericField @bind-Value="_server.NumberOfSessionsToKeep" Label="Number of sessions to keep" Variant="Variant.Outlined" />
+    <div class="d-flex align-center justify-space-between mt-6">
+      <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!_isFormValid)" OnClick="@(async () => await SubmitAsync())" Class="ml-auto">Save</MudButton>
+    </div>
+  </MudForm>
+  
+}

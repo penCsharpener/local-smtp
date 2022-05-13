@@ -2,12 +2,16 @@
 
 <MudText Class="mb-5" Typo="Typo.h5">SMTP</MudText>
 
-<MudForm Class="d-flex flex-column gap-4" @ref="_form" @bind-IsValid="@_isFormValid">
-  <MudTextField T="string" @bind-Value="_hostName" Label="Hostname" Variant="Variant.Outlined" Required="true" RequiredError="Hostname is required!"></MudTextField>
-  <MudNumericField @bind-Value="_smtpPort" Label="Port" Variant="Variant.Outlined" />
-  <div class="d-flex align-center justify-space-between mt-6">
-    <MudSwitch T="bool" Class="ml-n2" Required="false" Label="Allow Remote Connections" @bind-Checked="_allowRemoteConnections" />
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!_isFormValid)" Class="ml-auto">Save</MudButton>
-  </div>
-</MudForm>
+@if (_server is not null)
+{
+  
+  <MudForm Class="d-flex flex-column gap-4" @ref="_form" Model="_server" @bind-IsValid="@_isFormValid">
+    <MudTextField T="string" @bind-Value="_server.HostName" Label="Hostname" Variant="Variant.Outlined" Required="true" RequiredError="Hostname is required!"></MudTextField>
+    <MudNumericField @bind-Value="_server.PortNumber" Label="Port" Variant="Variant.Outlined" />
+    <div class="d-flex align-center justify-space-between mt-6">
+      <MudSwitch T="bool" Class="ml-n2" Required="false" Label="Allow Remote Connections" @bind-Checked="_server.AllowRemoteConnections" />
+      <MudButton Class="ml-auto" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!_isFormValid)" OnClick="@(async () => await SubmitAsync())">Save</MudButton>
+    </div>
+  </MudForm>
 
+}
