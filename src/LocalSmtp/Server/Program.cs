@@ -25,7 +25,7 @@ public class Program
             Args = args
         });
 
-        ConfigureHost(builder.Host, builder.Configuration);
+        ConfigureHost(builder.Host, builder.Configuration, args);
 
         ConfigureServices(builder.Services, builder.Configuration);
 
@@ -39,9 +39,21 @@ public class Program
         app.Run();
     }
 
-    private static void ConfigureHost(IHostBuilder host, IConfiguration configuration)
+    private static void ConfigureHost(IHostBuilder host, IConfiguration configuration, string[] args)
     {
         host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(configuration));
+        host.ConfigureAppConfiguration((host, configuration) =>
+        {
+            var homePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LocalSmtp");
+
+            configuration.Sources.Clear();
+            configuration.AddJsonFile("appsettings.json", optional: true, true);
+            configuration.AddJsonFile($"appsettings.{host.HostingEnvironment.EnvironmentName}.json", true, true);
+            configuration.AddJsonFile(Path.Combine(homePath, "appsettings.json"), optional: true, true);
+            configuration.AddUserSecrets<Program>(true, true);
+            configuration.AddCommandLine(args);
+            configuration.AddEnvironmentVariables();
+        });
         host.UseWindowsService();
     }
 

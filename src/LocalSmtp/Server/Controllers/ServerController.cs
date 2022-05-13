@@ -17,61 +17,63 @@ using MailKit.Security;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
+using ServerApiModel = LocalSmtp.Shared.ApiModels.Server;
 
-namespace Rnwood.Smtp4dev.Controllers
+namespace LocalSmtp.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class ServerController : Controller
     {
+
+        private readonly ILocalSmtpServer _server;
+        private readonly ImapServer _imapServer;
+        private readonly IOptionsMonitor<ServerOptions> _serverOptions;
+        private readonly IOptionsMonitor<RelayOptions> _relayOptions;
+        private readonly IHostingEnvironmentHelper _hostingEnvironmentHelper;
+        private readonly JsonSerializerOptions _jsonSerializerOptions = new() { WriteIndented = true };
+
         public ServerController(ILocalSmtpServer server, ImapServer imapServer, IOptionsMonitor<ServerOptions> serverOptions,
             IOptionsMonitor<RelayOptions> relayOptions, IHostingEnvironmentHelper hostingEnvironmentHelper)
         {
-            this.server = server;
-            this.imapServer = imapServer;
-            this.serverOptions = serverOptions;
-            this.relayOptions = relayOptions;
-            this.hostingEnvironmentHelper = hostingEnvironmentHelper;
+            _server = server;
+            _imapServer = imapServer;
+            _serverOptions = serverOptions;
+            _relayOptions = relayOptions;
+            _hostingEnvironmentHelper = hostingEnvironmentHelper;
         }
 
-
-        private ILocalSmtpServer server;
-        private ImapServer imapServer;
-        private IOptionsMonitor<ServerOptions> serverOptions;
-        private IOptionsMonitor<RelayOptions> relayOptions;
-        private readonly IHostingEnvironmentHelper hostingEnvironmentHelper;
-
         [HttpGet]
-        public Server GetServer()
+        public ServerApiModel GetServer()
         {
-            return new Server()
+            return new ServerApiModel()
             {
-                IsRunning = server.IsRunning,
-                PortNumber = serverOptions.CurrentValue.Port,
-                ImapPortNumber = serverOptions.CurrentValue.ImapPort,
-                HostName = serverOptions.CurrentValue.HostName,
-                AllowRemoteConnections = serverOptions.CurrentValue.AllowRemoteConnections,
-                NumberOfMessagesToKeep = serverOptions.CurrentValue.NumberOfMessagesToKeep,
-                NumberOfSessionsToKeep = serverOptions.CurrentValue.NumberOfSessionsToKeep,
-                Exception = server.Exception?.Message,
+                IsRunning = _server.IsRunning,
+                PortNumber = _serverOptions.CurrentValue.Port,
+                ImapPortNumber = _serverOptions.CurrentValue.ImapPort,
+                HostName = _serverOptions.CurrentValue.HostName,
+                AllowRemoteConnections = _serverOptions.CurrentValue.AllowRemoteConnections,
+                NumberOfMessagesToKeep = _serverOptions.CurrentValue.NumberOfMessagesToKeep,
+                NumberOfSessionsToKeep = _serverOptions.CurrentValue.NumberOfSessionsToKeep,
+                Exception = _server.Exception?.Message,
                 RelayOptions = new ServerRelayOptions
                 {
-                    SmtpServer = relayOptions.CurrentValue.SmtpServer,
-                    TlsMode = relayOptions.CurrentValue.TlsMode.ToString(),
-                    SmtpPort = relayOptions.CurrentValue.SmtpPort,
-                    Login = relayOptions.CurrentValue.Login,
-                    Password = relayOptions.CurrentValue.Password,
-                    AutomaticEmails = relayOptions.CurrentValue.AutomaticEmails,
-                    SenderAddress = relayOptions.CurrentValue.SenderAddress
+                    SmtpServer = _relayOptions.CurrentValue.SmtpServer,
+                    TlsMode = _relayOptions.CurrentValue.TlsMode.ToString(),
+                    SmtpPort = _relayOptions.CurrentValue.SmtpPort,
+                    Login = _relayOptions.CurrentValue.Login,
+                    Password = _relayOptions.CurrentValue.Password,
+                    AutomaticEmails = _relayOptions.CurrentValue.AutomaticEmails,
+                    SenderAddress = _relayOptions.CurrentValue.SenderAddress
                 }
             };
         }
 
         [HttpPost]
-        public void UpdateServer(Server serverUpdate)
+        public void UpdateServer(ServerApiModel serverUpdate)
         {
-            ServerOptions newSettings = serverOptions.CurrentValue;
-            RelayOptions newRelaySettings = relayOptions.CurrentValue;
+            var newSettings = _serverOptions.CurrentValue;
+            var newRelaySettings = _relayOptions.CurrentValue;
 
             newSettings.Port = serverUpdate.PortNumber;
             newSettings.HostName = serverUpdate.HostName;
@@ -88,27 +90,27 @@ namespace Rnwood.Smtp4dev.Controllers
             newRelaySettings.Password = serverUpdate.RelayOptions.Password;
             newRelaySettings.AutomaticEmails = serverUpdate.RelayOptions.AutomaticEmails;
 
-            if (!serverUpdate.IsRunning && this.server.IsRunning)
+            if (!serverUpdate.IsRunning && _server.IsRunning)
             {
-                this.server.Stop();
+                _server.Stop();
             }
-            else if (serverUpdate.IsRunning && !this.server.IsRunning)
+            else if (serverUpdate.IsRunning && !_server.IsRunning)
             {
-                this.server.TryStart();
-            }
-
-            if (!serverUpdate.IsRunning && this.imapServer.IsRunning)
-            {
-                this.imapServer.Stop();
-            }
-            else if (serverUpdate.IsRunning && !this.imapServer.IsRunning)
-            {
-                this.imapServer.TryStart();
+                _server.TryStart();
             }
 
-            System.IO.File.WriteAllText(hostingEnvironmentHelper.GetSettingsFilePath(),
-                JsonSerializer.Serialize(new { ServerOptions = newSettings, RelayOptions = newRelaySettings },
-                    new JsonSerializerOptions { WriteIndented = true }));
+            if (!serverUpdate.IsRunning && _imapServer.IsRunning)
+            {
+                _imapServer.Stop();
+            }
+            else if (serverUpdate.IsRunning && !_imapServer.IsRunning)
+            {
+                _imapServer.TryStart();
+            }
+
+            var json = JsonSerializer.Serialize(new { ServerOptions = newSettings, RelayOptions = newRelaySettings }, _jsonSerializerOptions);
+
+            System.IO.File.WriteAllText(_hostingEnvironmentHelper.GetSettingsFilePath(), json);
         }
     }
 }

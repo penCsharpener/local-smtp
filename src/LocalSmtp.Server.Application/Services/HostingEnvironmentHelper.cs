@@ -38,8 +38,8 @@ public class HostingEnvironmentHelper : IHostingEnvironmentHelper
         }
 
         var processName = Path.GetFileNameWithoutExtension(Process.GetCurrentProcess().ProcessName);
-        return (processName.Contains("w3wp", StringComparison.OrdinalIgnoreCase) ||
-                processName.Contains("iisexpress", StringComparison.OrdinalIgnoreCase));
+        return processName.Contains("w3wp", StringComparison.OrdinalIgnoreCase) ||
+                processName.Contains("iisexpress", StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
@@ -49,8 +49,16 @@ public class HostingEnvironmentHelper : IHostingEnvironmentHelper
     public string GetSettingsFilePath()
     {
         var dataDir = IsRunningInProcessIIS()
-            ? Path.Join(hostEnvironment.ContentRootPath, "smtp4dev")
-            : Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "smtp4dev");
+            ? Path.Join(hostEnvironment.ContentRootPath, "LocalSmtp")
+            : Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LocalSmtp");
+
+        var settingsFileInfo = new FileInfo(dataDir);
+
+        if (!settingsFileInfo.Directory.Exists)
+        {
+            Directory.CreateDirectory(settingsFileInfo.DirectoryName);
+        }
+
         return Path.Join(dataDir, "appsettings.json");
     }
 }

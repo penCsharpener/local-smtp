@@ -34,12 +34,12 @@ public class LocalSmtpServer : ILocalSmtpServer
         IOptionsMonitor<RelayOptions> relayOptions, NotificationsHub notificationsHub, Func<RelayOptions, SmtpClient> relaySmtpClientFactory,
         ITaskQueue taskQueue, ILogger<LocalSmtpServer> logger)
     {
-        this.notificationsHub = notificationsHub;
-        this.serverOptions = serverOptions;
-        this.relayOptions = relayOptions;
-        this.serviceScopeFactory = serviceScopeFactory;
-        this.relaySmtpClientFactory = relaySmtpClientFactory;
-        this.taskQueue = taskQueue;
+        _notificationsHub = notificationsHub;
+        _serverOptions = serverOptions;
+        _relayOptions = relayOptions;
+        _serviceScopeFactory = serviceScopeFactory;
+        _relaySmtpClientFactory = relaySmtpClientFactory;
+        _taskQueue = taskQueue;
         _logger = logger;
 
         DoCleanup();
@@ -53,7 +53,7 @@ public class LocalSmtpServer : ILocalSmtpServer
 
     private void OnServerOptionsChanged(ServerOptions arg1)
     {
-        if (smtpServer?.IsRunning == true)
+        if (_smtpServer?.IsRunning == true)
         {
             _logger.LogInformation("ServerOptions changed. Restarting server...");
             Stop();
@@ -69,48 +69,48 @@ public class LocalSmtpServer : ILocalSmtpServer
     {
         var cert = GetTlsCertificate();
 
-        var serverOptionsValue = serverOptions.CurrentValue;
-        smtpServer = new DefaultServer(serverOptionsValue.AllowRemoteConnections, serverOptionsValue.HostName, serverOptionsValue.Port,
+        var serverOptionsValue = _serverOptions.CurrentValue;
+        _smtpServer = new DefaultServer(serverOptionsValue.AllowRemoteConnections, serverOptionsValue.HostName, serverOptionsValue.Port,
             serverOptionsValue.TlsMode == TlsMode.ImplicitTls ? cert : null,
             serverOptionsValue.TlsMode == TlsMode.StartTls ? cert : null
         );
-        this.smtpServer.MessageReceivedEventHandler += OnMessageReceived;
-        this.smtpServer.SessionCompletedEventHandler += OnSessionCompleted;
-        this.smtpServer.SessionStartedHandler += OnSessionStarted;
-        this.smtpServer.AuthenticationCredentialsValidationRequiredEventHandler += OnAuthenticationCredentialsValidationRequired;
-        this.smtpServer.IsRunningChanged += (_, __) =>
+        _smtpServer.MessageReceivedEventHandler += OnMessageReceived;
+        _smtpServer.SessionCompletedEventHandler += OnSessionCompleted;
+        _smtpServer.SessionStartedHandler += OnSessionStarted;
+        _smtpServer.AuthenticationCredentialsValidationRequiredEventHandler += OnAuthenticationCredentialsValidationRequired;
+        _smtpServer.IsRunningChanged += (_, __) =>
         {
-            if (this.smtpServer.IsRunning)
+            if (_smtpServer.IsRunning)
                 return;
             _logger.LogInformation("SMTP server stopped.");
-            this.notificationsHub.OnServerChanged().Wait();
+            _notificationsHub.OnServerChanged().Wait();
         };
     }
 
     public void Stop()
     {
         _logger.LogInformation("SMTP server stopping...");
-        smtpServer.Stop(true);
+        _smtpServer.Stop(true);
     }
 
     private X509Certificate2 GetTlsCertificate()
     {
         X509Certificate2 cert = null;
 
-        _logger.LogInformation("TLS mode: {TLSMode}", serverOptions.CurrentValue.TlsMode);
+        _logger.LogInformation("TLS mode: {TLSMode}", _serverOptions.CurrentValue.TlsMode);
 
-        if (serverOptions.CurrentValue.TlsMode != TlsMode.None)
+        if (_serverOptions.CurrentValue.TlsMode != TlsMode.None)
         {
-            if (!string.IsNullOrEmpty(serverOptions.CurrentValue.TlsCertificate))
+            if (!string.IsNullOrEmpty(_serverOptions.CurrentValue.TlsCertificate))
             {
-                if (string.IsNullOrEmpty(serverOptions.CurrentValue.TlsCertificatePrivateKey))
+                if (string.IsNullOrEmpty(_serverOptions.CurrentValue.TlsCertificatePrivateKey))
                 {
-                    cert = CertificateHelper.LoadCertificate(serverOptions.CurrentValue.TlsCertificate);
+                    cert = CertificateHelper.LoadCertificate(_serverOptions.CurrentValue.TlsCertificate);
                 }
                 else
                 {
-                    cert = CertificateHelper.LoadCertificateWithKey(serverOptions.CurrentValue.TlsCertificate,
-                        serverOptions.CurrentValue.TlsCertificatePrivateKey);
+                    cert = CertificateHelper.LoadCertificateWithKey(_serverOptions.CurrentValue.TlsCertificate,
+                        _serverOptions.CurrentValue.TlsCertificatePrivateKey);
                 }
 
                 _logger.LogInformation("Using provided certificate with Subject {SubjectName}, expiry {ExpiryDate}", cert.SubjectName.Name,
@@ -126,7 +126,7 @@ public class LocalSmtpServer : ILocalSmtpServer
                     cert = new X509Certificate2(File.ReadAllBytes(pfxPath), "",
                         X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable);
 
-                    if (cert.Subject != $"CN={serverOptions.CurrentValue.HostName}" ||
+                    if (cert.Subject != $"CN={_serverOptions.CurrentValue.HostName}" ||
                         DateTime.Parse(cert.GetExpirationDateString()) < DateTime.Now.AddDays(30))
                     {
                         cert = null;
@@ -135,25 +135,25 @@ public class LocalSmtpServer : ILocalSmtpServer
                     {
                         _logger.LogInformation(
                             "Using existing self-signed certificate with subject name {Hostname} and expiry date {ExpirationDate}",
-                            serverOptions.CurrentValue.HostName,
+                            _serverOptions.CurrentValue.HostName,
                             cert.GetExpirationDateString());
                     }
                 }
 
                 if (cert == null)
                 {
-                    cert = SSCertGenerator.CreateSelfSignedCertificate(serverOptions.CurrentValue.HostName);
+                    cert = SSCertGenerator.CreateSelfSignedCertificate(_serverOptions.CurrentValue.HostName);
                     File.WriteAllBytes(pfxPath, cert.Export(X509ContentType.Pkcs12));
                     File.WriteAllBytes(cerPath, cert.Export(X509ContentType.Cert));
                     _logger.LogInformation("Generated new self-signed certificate with subject name '{Hostname} and expiry date {ExpirationDate}",
-                        serverOptions.CurrentValue.HostName,
+                        _serverOptions.CurrentValue.HostName,
                         cert.GetExpirationDateString());
                 }
 
 
                 _logger.LogInformation(
                     "Ensure that the hostname you enter into clients and '{Hostname}' from ServerOptions:HostName configuration match exactly and trust the issuer certificate at {cerPath} in your client/OS to avoid certificate validation errors.",
-                    serverOptions.CurrentValue.HostName, cerPath);
+                    _serverOptions.CurrentValue.HostName, cerPath);
             }
         }
 
@@ -162,7 +162,7 @@ public class LocalSmtpServer : ILocalSmtpServer
 
     private void DoCleanup()
     {
-        using var scope = serviceScopeFactory.CreateScope();
+        using var scope = _serviceScopeFactory.CreateScope();
         var dbContext = scope.ServiceProvider.GetService<AppDbContext>();
 
         foreach (var unfinishedSession in dbContext.Sessions.Where(s => !s.EndDate.HasValue).ToArray())
@@ -178,8 +178,8 @@ public class LocalSmtpServer : ILocalSmtpServer
         TrimSessions(dbContext);
         dbContext.SaveChanges();
 
-        notificationsHub.OnMessagesChanged().Wait();
-        notificationsHub.OnSessionsChanged().Wait();
+        _notificationsHub.OnMessagesChanged().Wait();
+        _notificationsHub.OnSessionsChanged().Wait();
     }
 
     private Task OnAuthenticationCredentialsValidationRequired(object sender, AuthenticationCredentialsValidationEventArgs e)
@@ -189,8 +189,8 @@ public class LocalSmtpServer : ILocalSmtpServer
     }
 
 
-    private readonly IOptionsMonitor<ServerOptions> serverOptions;
-    private readonly IOptionsMonitor<RelayOptions> relayOptions;
+    private readonly IOptionsMonitor<ServerOptions> _serverOptions;
+    private readonly IOptionsMonitor<RelayOptions> _relayOptions;
     private readonly IDictionary<ISession, Guid> activeSessionsToDbId = new Dictionary<ISession, Guid>();
 
     private static async Task UpdateDbSession(ISession session, Session dbSession)
@@ -208,9 +208,9 @@ public class LocalSmtpServer : ILocalSmtpServer
     private async Task OnSessionStarted(object sender, SessionEventArgs e)
     {
         _logger.LogInformation("Session started. Client address {clientAddress}.", e.Session.ClientAddress);
-        await taskQueue.QueueTask(() =>
+        await _taskQueue.QueueTask(() =>
         {
-            using var scope = serviceScopeFactory.CreateScope();
+            using var scope = _serviceScopeFactory.CreateScope();
             var dbContext = scope.ServiceProvider.GetService<AppDbContext>();
 
             var dbSession = new Session();
@@ -228,9 +228,9 @@ public class LocalSmtpServer : ILocalSmtpServer
         _logger.LogInformation("Session completed. Client address {clientAddress}. Number of messages {messageCount}.", e.Session.ClientAddress,
             messageCount);
 
-        await taskQueue.QueueTask(() =>
+        await _taskQueue.QueueTask(() =>
         {
-            using var scope = serviceScopeFactory.CreateScope();
+            using var scope = _serviceScopeFactory.CreateScope();
             var dbContext = scope.ServiceProvider.GetService<AppDbContext>();
 
             var dbSession = dbContext.Sessions.Find(activeSessionsToDbId[e.Session]);
@@ -242,36 +242,36 @@ public class LocalSmtpServer : ILocalSmtpServer
 
             activeSessionsToDbId.Remove(e.Session);
 
-            notificationsHub.OnSessionsChanged().Wait();
+            _notificationsHub.OnSessionsChanged().Wait();
         }, false).ConfigureAwait(false);
     }
 
 
     public Task DeleteSession(Guid id)
     {
-        return taskQueue.QueueTask(() =>
+        return _taskQueue.QueueTask(() =>
         {
-            using var scope = serviceScopeFactory.CreateScope();
+            using var scope = _serviceScopeFactory.CreateScope();
             var dbContext = scope.ServiceProvider.GetService<AppDbContext>();
             var session = dbContext.Sessions.SingleOrDefault(s => s.Id == id);
             if (session != null)
             {
                 dbContext.Sessions.Remove(session);
                 dbContext.SaveChanges();
-                notificationsHub.OnSessionsChanged().Wait();
+                _notificationsHub.OnSessionsChanged().Wait();
             }
         }, true);
     }
 
     public Task DeleteAllSessions()
     {
-        return taskQueue.QueueTask(() =>
+        return _taskQueue.QueueTask(() =>
         {
-            using var scope = serviceScopeFactory.CreateScope();
+            using var scope = _serviceScopeFactory.CreateScope();
             var dbContext = scope.ServiceProvider.GetService<AppDbContext>();
             dbContext.Sessions.RemoveRange(dbContext.Sessions.Where(s => s.EndDate.HasValue));
             dbContext.SaveChanges();
-            notificationsHub.OnSessionsChanged().Wait();
+            _notificationsHub.OnSessionsChanged().Wait();
         }, true);
     }
 
@@ -282,10 +282,10 @@ public class LocalSmtpServer : ILocalSmtpServer
             e.Message.Session.ClientAddress, e.Message.From, message.To, e.Message.SecureConnection);
         message.IsUnread = true;
 
-        await taskQueue.QueueTask(() =>
+        await _taskQueue.QueueTask(() =>
         {
             _logger.LogInformation("Processing received message");
-            using var scope = serviceScopeFactory.CreateScope();
+            using var scope = _serviceScopeFactory.CreateScope();
             var dbContext = scope.ServiceProvider.GetService<AppDbContext>();
 
             var relayResult = TryRelayMessage(message, null);
@@ -309,7 +309,7 @@ public class LocalSmtpServer : ILocalSmtpServer
 
             TrimMessages(dbContext);
             dbContext.SaveChanges();
-            notificationsHub.OnMessagesChanged().Wait();
+            _notificationsHub.OnMessagesChanged().Wait();
             _logger.LogInformation("Processing received message DONE");
         }, false).ConfigureAwait(false);
     }
@@ -318,7 +318,7 @@ public class LocalSmtpServer : ILocalSmtpServer
     {
         var result = new RelayResult(message);
 
-        if (!relayOptions.CurrentValue.IsEnabled)
+        if (!_relayOptions.CurrentValue.IsEnabled)
         {
             return result;
         }
@@ -330,7 +330,7 @@ public class LocalSmtpServer : ILocalSmtpServer
             recipients = message.To
                 .Split(",")
                 .Select(r => MailboxAddress.Parse(r))
-                .Where(r => relayOptions.CurrentValue.AutomaticEmails.Contains(r.Address, StringComparer.OrdinalIgnoreCase))
+                .Where(r => _relayOptions.CurrentValue.AutomaticEmails.Contains(r.Address, StringComparer.OrdinalIgnoreCase))
                 .ToArray();
         }
         else
@@ -344,12 +344,12 @@ public class LocalSmtpServer : ILocalSmtpServer
             {
                 _logger.LogInformation("Relaying message to {recipient}", recipient);
 
-                using var relaySmtpClient = relaySmtpClientFactory(relayOptions.CurrentValue);
+                using var relaySmtpClient = _relaySmtpClientFactory(_relayOptions.CurrentValue);
                 var apiMsg = message.ToApiModel();
                 var newEmail = apiMsg.MimeMessage;
                 var sender = MailboxAddress.Parse(
-                    !string.IsNullOrEmpty(relayOptions.CurrentValue.SenderAddress)
-                        ? relayOptions.CurrentValue.SenderAddress
+                    !string.IsNullOrEmpty(_relayOptions.CurrentValue.SenderAddress)
+                        ? _relayOptions.CurrentValue.SenderAddress
                         : apiMsg.From);
                 relaySmtpClient.Send(newEmail, sender, new[] { recipient });
                 result.RelayRecipients.Add(new RelayRecipientResult() { Email = recipient.Address, RelayDate = DateTime.UtcNow });
@@ -367,32 +367,32 @@ public class LocalSmtpServer : ILocalSmtpServer
     private void TrimMessages(AppDbContext dbContext)
     {
         dbContext.Messages.RemoveRange(dbContext.Messages.OrderByDescending(m => m.ReceivedDate)
-            .Skip(serverOptions.CurrentValue.NumberOfMessagesToKeep));
+            .Skip(_serverOptions.CurrentValue.NumberOfMessagesToKeep));
     }
 
     private void TrimSessions(AppDbContext dbContext)
     {
         dbContext.Sessions.RemoveRange(dbContext.Sessions.Where(s => s.EndDate.HasValue).OrderByDescending(m => m.EndDate)
-            .Skip(serverOptions.CurrentValue.NumberOfSessionsToKeep));
+            .Skip(_serverOptions.CurrentValue.NumberOfSessionsToKeep));
     }
 
 
-    private readonly ITaskQueue taskQueue;
-    private DefaultServer smtpServer;
-    private readonly Func<RelayOptions, SmtpClient> relaySmtpClientFactory;
-    private readonly NotificationsHub notificationsHub;
-    private readonly IServiceScopeFactory serviceScopeFactory;
+    private readonly ITaskQueue _taskQueue;
+    private DefaultServer _smtpServer;
+    private readonly Func<RelayOptions, SmtpClient> _relaySmtpClientFactory;
+    private readonly NotificationsHub _notificationsHub;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
 
     public Exception Exception { get; private set; }
 
     public bool IsRunning
     {
-        get { return smtpServer.IsRunning; }
+        get { return _smtpServer.IsRunning; }
     }
 
     public int PortNumber
     {
-        get { return smtpServer.PortNumber; }
+        get { return _smtpServer.PortNumber; }
     }
 
     public void TryStart()
@@ -402,12 +402,12 @@ public class LocalSmtpServer : ILocalSmtpServer
             Exception = null;
 
             CreateSmtpServer();
-            smtpServer.Start();
+            _smtpServer.Start();
 
             _logger.LogInformation("SMTP Server is listening on port {smtpPortNumber}.",
-                smtpServer.PortNumber);
+                _smtpServer.PortNumber);
             _logger.LogInformation("Keeping last {messagesToKeep} messages and {sessionsToKeep} sessions.",
-                serverOptions.CurrentValue.NumberOfMessagesToKeep, serverOptions.CurrentValue.NumberOfSessionsToKeep);
+                _serverOptions.CurrentValue.NumberOfMessagesToKeep, _serverOptions.CurrentValue.NumberOfSessionsToKeep);
         }
         catch (Exception e)
         {
@@ -416,7 +416,7 @@ public class LocalSmtpServer : ILocalSmtpServer
         }
         finally
         {
-            notificationsHub.OnServerChanged().Wait();
+            _notificationsHub.OnServerChanged().Wait();
         }
     }
 }
