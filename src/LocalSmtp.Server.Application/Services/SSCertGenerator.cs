@@ -24,7 +24,7 @@ using Org.BouncyCastle.X509;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 
-[assembly: InternalsVisibleTo("Rnwood.Smtp4dev.Tests")]
+[assembly: InternalsVisibleTo("LocalSmtp.Server.Application.Services.Tests")]
 namespace LocalSmtp.Server.Application.Services;
 
 internal static class SSCertGenerator

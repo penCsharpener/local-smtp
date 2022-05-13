@@ -35,11 +35,11 @@ public class ImapServer
         this.serviceScopeFactory = serviceScopeFactory;
 
         IDisposable eventHandler = null;
-        IObservable<ServerOptions>? obs = Observable.FromEvent<ServerOptions>(e => eventHandler = serverOptions.OnChange(e), e => eventHandler.Dispose());
+        var obs = Observable.FromEvent<ServerOptions>(e => eventHandler = serverOptions.OnChange(e), e => eventHandler.Dispose());
         obs.Throttle(TimeSpan.FromMilliseconds(100)).Subscribe(OnServerOptionsChanged);
 
-        using IServiceScope? scope = serviceScopeFactory.CreateScope();
-        AppDbContext? dbContext = scope.ServiceProvider.GetService<AppDbContext>();
+        using var scope = serviceScopeFactory.CreateScope();
+        var dbContext = scope.ServiceProvider.GetService<AppDbContext>();
         if (!dbContext.ImapState.Any())
         {
             dbContext.Add(new ImapState
@@ -77,7 +77,7 @@ public class ImapServer
         imapServer = new IMAP_Server()
         {
             Bindings = new[] { new IPBindInfo(Dns.GetHostName(), BindInfoProtocol.TCP, serverOptions.CurrentValue.AllowRemoteConnections ? IPAddress.Any : IPAddress.Loopback, serverOptions.CurrentValue.ImapPort.Value) },
-            GreetingText = "smtp4dev"
+            GreetingText = "LocalSmtp"
         };
         imapServer.SessionCreated += (o, args) => new SessionHandler(args.Session, this.serviceScopeFactory);
 
@@ -95,10 +95,10 @@ public class ImapServer
 
         imapServer.Start();
 
-        Task<Error_EventArgs>? errorTask = errorTcs.Task;
-        Task<EventArgs>? startedTask = startedTcs.Task;
+        var errorTask = errorTcs.Task;
+        var startedTask = startedTcs.Task;
 
-        int index = Task.WaitAny(startedTask, errorTask, Task.Delay(TimeSpan.FromSeconds(30)));
+        var index = Task.WaitAny(startedTask, errorTask, Task.Delay(TimeSpan.FromSeconds(30)));
 
         if (index == 1)
         {
@@ -116,7 +116,7 @@ public class ImapServer
         }
         else
         {
-            int port = ((IPEndPoint)imapServer.ListeningPoints[0].Socket.LocalEndPoint).Port;
+            var port = ((IPEndPoint)imapServer.ListeningPoints[0].Socket.LocalEndPoint).Port;
             _logger.LogInformation("IMAP Server is listening on port {port}", port);
         }
     }
@@ -169,8 +169,8 @@ public class ImapServer
 
         private void Session_Store(object sender, IMAP_e_Store e)
         {
-            using IServiceScope? scope = serviceScopeFactory.CreateScope();
-            IMessagesRepository? messagesRepository = scope.ServiceProvider.GetService<IMessagesRepository>();
+            using var scope = serviceScopeFactory.CreateScope();
+            var messagesRepository = scope.ServiceProvider.GetService<IMessagesRepository>();
 
             if (e.FlagsSetType == IMAP_Flags_SetType.Add || e.FlagsSetType == IMAP_Flags_SetType.Replace)
             {
@@ -191,12 +191,12 @@ public class ImapServer
 
         private void Session_GetMessagesInfo(object sender, IMAP_e_MessagesInfo e)
         {
-            using IServiceScope? scope = serviceScopeFactory.CreateScope();
-            IMessagesRepository? messagesRepository = scope.ServiceProvider.GetService<IMessagesRepository>();
+            using var scope = serviceScopeFactory.CreateScope();
+            var messagesRepository = scope.ServiceProvider.GetService<IMessagesRepository>();
 
             if (e.Folder == "INBOX")
             {
-                foreach (Message? message in messagesRepository.GetMessages())
+                foreach (var message in messagesRepository.GetMessages())
                 {
                     List<string> flags = new();
                     if (!message.IsUnread)
@@ -211,17 +211,17 @@ public class ImapServer
 
         private void Session_Fetch(object sender, IMAP_e_Fetch e)
         {
-            using IServiceScope? scope = serviceScopeFactory.CreateScope();
-            IMessagesRepository? messagesRepository = scope.ServiceProvider.GetService<IMessagesRepository>();
+            using var scope = serviceScopeFactory.CreateScope();
+            var messagesRepository = scope.ServiceProvider.GetService<IMessagesRepository>();
 
-            foreach (IMAP_MessageInfo? msgInfo in e.MessagesInfo)
+            foreach (var msgInfo in e.MessagesInfo)
             {
-                Message? dbMessage = messagesRepository.GetMessages().SingleOrDefault(m => m.Id == new Guid(msgInfo.ID));
+                var dbMessage = messagesRepository.GetMessages().SingleOrDefault(m => m.Id == new Guid(msgInfo.ID));
 
                 if (dbMessage != null)
                 {
-                    Models.ExtendedMessage? apiMessage = dbMessage.ToApiModel();
-                    Mail_Message message = Mail_Message.ParseFromByte(apiMessage.Data);
+                    var apiMessage = dbMessage.ToApiModel();
+                    var message = Mail_Message.ParseFromByte(apiMessage.Data);
                     e.AddData(msgInfo, message);
                 }
             }
