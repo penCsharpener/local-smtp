@@ -7,6 +7,7 @@ LocalSmtp is a fork of the backend of rnwood/smtp4dev. Since smtp4dev hasn't bee
 * add a bit of clean architecture to the backend
 * made some minor adjustments to the UI to work better with MudBlazor
 * added possibility to run it as Windows Server on Kestrel (what I'm using mainly)
+* dark theme support
 
 What I'm not going to do myself is adding Docker support. I invite anyone to submit Docker support via pull request.
 
