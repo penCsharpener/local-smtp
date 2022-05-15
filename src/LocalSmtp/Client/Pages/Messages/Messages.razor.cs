@@ -11,7 +11,7 @@ namespace LocalSmtp.Client.Pages.Messages
     {
         List<MessageSummary>? messageSummaries = new();
         private string searchString = "";
-        private MudTable<MessageSummary> mudTable;
+        private MudTable<MessageSummary>? mudTable;
         HubConnection _hubConnection = null;
         private Message? _messageContent;
         private string? _messageRaw;

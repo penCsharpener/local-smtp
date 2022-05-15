@@ -1,4 +1,5 @@
-﻿@inject HttpClient Http
+﻿@using LocalSmtp.Shared.Extensions
+@inject HttpClient Http
 
 @if (Message != null)
 {
@@ -16,29 +17,23 @@
       <MudTabPanel Text="Headers">
         <MessageHeaders Headers=@SelectedValue.Headers DecreaseHeight="480"></MessageHeaders>
       </MudTabPanel>
-      @if (!string.IsNullOrWhiteSpace(_htmlpart))
-      {
-        <MudTabPanel Text="Body">
-          <MessageBodyView HtmlMessage="@_htmlpart" DecreaseHeight="480"></MessageBodyView>
-        </MudTabPanel>
-      }
-      @if (!string.IsNullOrWhiteSpace(_rawpart))
-      {
-        <MudTabPanel Text="Source">
-          <MessageSource RawMessage="@_rawpart" DecreaseHeight="480"></MessageSource>
-        </MudTabPanel>
-      }
+      <MudTabPanel Text="Body">
+        <MessageBodyView HtmlMessage="@_htmlpart" DecreaseHeight="480"></MessageBodyView>
+      </MudTabPanel>
+      <MudTabPanel Text="Source">
+        <MessageSource RawMessage="@_rawpart" DecreaseHeight="480"></MessageSource>
+      </MudTabPanel>
     </MudTabs>
   </div>
 }
 
 @code {
-  [Parameter]
+  [CascadingParameter]
   public Message? Message { get; set; }
 
-  public MessageEntitySummary SelectedValue { get; set; }
-  private string _htmlpart;
-  private string _rawpart;
+  public MessageEntitySummary? SelectedValue { get; set; }
+  private string? _htmlpart;
+  private string? _rawpart;
 
   protected override async Task OnParametersSetAsync()
   {
@@ -56,7 +51,7 @@
 }
 
 <style>
-.sub-tab-panel-height {
-  overflow: auto;
-}
+  .sub-tab-panel-height {
+      overflow: auto;
+  }
 </style>

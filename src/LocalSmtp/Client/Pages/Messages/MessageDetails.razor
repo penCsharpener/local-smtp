@@ -8,7 +8,7 @@
       <MudSkeleton Width="100%" Height="50px" />
       <MudSkeleton Width="100%" Height="50px" />
       <MudSkeleton Width="100%" Height="50px" />
-      <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="500px"/>
+      <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="500px" />
     </div>
   }
   else
@@ -37,10 +37,10 @@
             <MessageBodyView HtmlMessage="@HtmlMessage" DecreaseHeight="360"></MessageBodyView>
           </MudTabPanel>
           <MudTabPanel Text="Headers">
-            <MessageHeaders Message="@Message" DecreaseHeight="385"></MessageHeaders>
+            <MessageHeaders DecreaseHeight="385"></MessageHeaders>
           </MudTabPanel>
           <MudTabPanel Text="Parts">
-            <MessageParts Message="@Message"></MessageParts>
+            <MessageParts></MessageParts>
           </MudTabPanel>
           <MudTabPanel Text="Source">
             <MessageSource RawMessage="@RawMessage" DecreaseHeight="360"></MessageSource>
@@ -53,7 +53,7 @@
 
 @code {
 
-  [Parameter]
+  [CascadingParameter]
   public Message? Message { get; set; }
 
   [Parameter]
@@ -61,12 +61,12 @@
 
   [Parameter]
   public string? RawMessage { get; set; }
-  
+
   [Parameter]
   public int DecreaseHeight { get; set; }
 
   private async Task DownloadAsync()
   {
-    await JSRuntime.InvokeVoidAsync("downloadFromUrl", new {Url = $"api/messages/{Message.Id}/download", FileName = "foo.jpeg"});
+    await JSRuntime.InvokeVoidAsync("downloadFromUrl", new { Url = $"api/messages/{Message.Id}/download", FileName = "foo.jpeg" });
   }
 }
