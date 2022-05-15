@@ -3,7 +3,7 @@
 @inject ILocalStorageService LocalStore
 @using Blazored.LocalStorage
 
-<MudThemeProvider />
+<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme"/>
 <MudDialogProvider />
 <MudSnackbarProvider />
 
@@ -21,6 +21,7 @@
       <MudText Typo="Typo.caption">SMTP server listening on port @Server?.PortNumber</MudText>
     </div>
     <MudButton StartIcon="@Icons.Material.Filled.Settings" Color="Color.Inherit" Href="settings/smtp">Settings</MudButton>
+    <MudToggleIconButton ToggledIcon="@Icons.Material.Filled.LightMode" Icon="@Icons.Material.Filled.DarkMode" ToggledChanged="OnThemeToggleAsync" Color="Color.Inherit" Title="Dark Mode" ToggledTitle="Light Mode"></MudToggleIconButton>
   </MudAppBar>
   <MudMainContent>
       @Body
@@ -31,10 +32,13 @@
 
   private Server? Server = default!;
   private Info? Info = default!;
+  private bool _isDarkMode;
+  private MudTheme _theme = new();
 
   protected override async Task OnInitializedAsync()
   {
     Server = await LocalStore.GetItemAsync<Server>("smtpInfo");
+    _isDarkMode = await LocalStore.GetItemAsync<bool>("isDarkMode");
 
     if (Server == null)
     {
@@ -49,5 +53,11 @@
       Info = await Http.GetFromJsonAsync<Info>("/api/Info");
       await LocalStore.SetItemAsync<Info>("serverInfo", Info!);
     }
+  }
+
+  private async Task OnThemeToggleAsync()
+  {
+    _isDarkMode = !_isDarkMode;
+    await LocalStore.SetItemAsync("isDarkMode", _isDarkMode);
   }
 }
